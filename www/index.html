@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>跑步日历 · 晨跑柔彩预览</title>
+<style>
+:root{
+  --bg:#f8f8fd;
+  --card:#ffffff;
+  --text:#413d56;
+  --muted:#8d89a0;
+  --sky:#9fc4ff;
+  --sky-soft:#eaf2ff;
+  --peach:#ffb7a1;
+  --peach-soft:#fff0eb;
+  --mint:#9fe3bf;
+  --mint-soft:#e9f9f0;
+  --lav:#c8baff;
+  --lav-soft:#f2eeff;
+  --border:#eeebf6;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:"Microsoft YaHei","PingFang SC","Segoe UI",sans-serif;
+  background:linear-gradient(160deg,#fbfbff 0%,#f2f6ff 45%,#faf4f8 100%);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+button{font-family:inherit;color:inherit}
+.blob{position:fixed;z-index:-1;border-radius:50%;filter:blur(48px);opacity:.5;pointer-events:none;animation:drift 18s ease-in-out infinite alternate}
+.blob-1{width:360px;height:360px;left:-90px;top:30px;background:#ffd9cf}
+.blob-2{width:400px;height:400px;right:-100px;bottom:-40px;background:#d4e3ff}
+.blob-3{width:220px;height:220px;left:45%;top:58%;background:#e0f7e9;opacity:.4}
+@keyframes drift{from{transform:translate(0,0) scale(1)}to{transform:translate(22px,16px) scale(1.06)}}
+.container{position:relative;max-width:1060px;margin:0 auto;padding:22px 16px 56px}
+
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;padding:4px 2px 20px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:46px;height:46px;display:grid;place-items:center;font-size:24px;background:var(--peach-soft);border-radius:18px;box-shadow:0 10px 22px rgba(255,183,161,.25)}
+.brand h1{margin:0;font-size:21px}
+.brand p{margin:3px 0 0;color:var(--muted);font-size:13px}
+.actions{display:flex;gap:8px}
+.actions button{border:0;background:var(--card);color:var(--text);padding:9px 16px;border-radius:999px;cursor:pointer;font-size:13px;box-shadow:0 8px 18px rgba(110,108,160,.1);transition:.18s}
+.actions button:hover{background:var(--sky-soft);color:#5b8de0;transform:translateY(-1px)}
+
+.hero{margin:14px 0 18px;padding:22px;background:rgba(255,255,255,.84);border:1px solid rgba(255,255,255,.9);border-radius:32px;box-shadow:0 20px 55px rgba(110,108,160,.12);backdrop-filter:blur(14px)}
+.month-nav{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.month-nav h2{margin:0 10px;font-size:22px;font-weight:700}
+.month-nav button{border:0;background:var(--card);padding:9px 14px;border-radius:999px;cursor:pointer;box-shadow:0 8px 18px rgba(110,108,160,.1);transition:.18s}
+.month-nav button:hover{background:var(--sky-soft);color:#5b8de0;transform:translateY(-1px)}
+.month-nav .today-link{background:transparent;box-shadow:none;color:var(--muted)}
+.month-nav .today-link:hover{background:transparent;color:var(--peach)}
+.hero-center{display:flex;align-items:center;justify-content:center;gap:26px;flex-wrap:wrap}
+.ring{position:relative;width:196px;height:196px;border-radius:50%;background:conic-gradient(from 20deg,var(--sky),var(--lav),var(--peach),var(--mint),var(--sky));padding:11px;flex:0 0 auto}
+.ring::after{content:"";position:absolute;inset:11px;border-radius:50%;background:#fbfaff}
+.ring-dot{position:absolute;inset:0;animation:orbit 16s linear infinite}
+.ring-dot::before{content:"";position:absolute;top:-6px;left:50%;width:12px;height:12px;border-radius:50%;background:var(--peach);box-shadow:0 4px 10px rgba(255,183,161,.7);transform:translateX(-50%)}
+@keyframes orbit{to{transform:rotate(360deg)}}
+.ring-inner{position:relative;z-index:1;width:100%;height:100%;border-radius:50%;background:#fbfaff;display:grid;place-items:center;text-align:center;padding:16px}
+.ring-value{font-size:46px;font-weight:800;line-height:1;background:linear-gradient(135deg,#6f9ef2,#f29b85);-webkit-background-clip:text;background-clip:text;color:transparent}
+.ring-unit{font-size:18px;font-weight:700;color:var(--muted)}
+.ring-label{font-size:12px;color:var(--muted);margin-top:8px}
+.hero-stats{display:grid;grid-template-columns:1.5fr 1fr;gap:12px;min-width:320px;flex:1;max-width:540px}
+.pace-chip{background:var(--lav-soft)}
+.stat-chip{background:var(--card);border:1px solid var(--border);border-radius:22px;padding:16px 18px;box-shadow:0 10px 24px rgba(110,108,160,.08)}
+.stat-chip span{display:block;color:var(--muted);font-size:12px;margin-bottom:6px}
+.stat-chip strong{font-size:26px;font-weight:800}
+.stat-chip:nth-child(1){background:var(--sky-soft)}
+.stat-chip:nth-child(2){background:var(--peach-soft)}
+.stat-chip:nth-child(3){background:var(--lav-soft)}
+.stat-chip:nth-child(4){background:var(--mint-soft)}
+
+.water-tank{position:relative;overflow:hidden;padding:0;aspect-ratio:1/1;background:linear-gradient(180deg,#eaf2ff 0%,#dcebff 100%);border-color:#c8d9ff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.75),inset 0 -18px 28px rgba(159,196,255,.18),0 14px 30px rgba(110,108,160,.12)}
+.water-tank::before{content:"";position:absolute;z-index:1;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.35),transparent 42%);pointer-events:none}
+.water-tank .tank-label{position:absolute;z-index:4;top:16px;left:18px;color:var(--muted);font-size:12px;letter-spacing:.04em}
+.water-tank .tank-count{position:absolute;z-index:4;top:38px;left:14px;min-width:46px;padding:5px 10px;font-size:30px;font-weight:800;color:#4f7fe0;background:rgba(255,255,255,.72);border-radius:999px;backdrop-filter:blur(5px);box-shadow:0 6px 16px rgba(110,108,160,.1)}
+.tank-water{position:absolute;left:0;right:0;bottom:0;height:0;background:linear-gradient(180deg,rgba(133,176,248,.92) 0%,rgba(76,126,225,.97) 100%);transition:height 1.05s cubic-bezier(.25,.75,.25,1);z-index:2;box-shadow:inset 0 10px 16px rgba(255,255,255,.22),inset 0 -10px 18px rgba(58,101,190,.18)}
+.tank-wave{position:absolute;left:0;top:-11px;width:200%;height:22px;pointer-events:none}
+.wave-back{animation:waveMove 4.8s linear infinite;opacity:.8}
+.wave-front{animation:waveMove 3.2s linear infinite reverse}
+@keyframes waveMove{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.tank-bubble{position:absolute;z-index:5;bottom:8px;width:9px;height:9px;border-radius:50%;background:radial-gradient(circle at 32% 30%,#ffffff 0 16%,rgba(255,255,255,.82) 42%,rgba(157,193,255,.2) 78%);box-shadow:0 0 10px rgba(255,255,255,.9);animation:bubbleUp 1.15s ease-out forwards;pointer-events:none}
+@keyframes bubbleUp{0%{transform:translateY(0) scale(.5);opacity:0}20%{opacity:.95}100%{transform:translateY(-82px) scale(1.32);opacity:0}}
+.ambient-bubble{position:absolute;z-index:3;bottom:4px;border-radius:50%;background:radial-gradient(circle at 32% 30%,#ffffff 0 20%,rgba(255,255,255,.78) 46%,rgba(157,193,255,.12) 78%);box-shadow:0 0 9px rgba(255,255,255,.8);opacity:0;pointer-events:none;animation:bubbleRise 4.6s linear infinite}
+.ambient-bubble.b1{left:8%;width:12px;height:12px;animation-duration:3.6s;animation-delay:0s}
+.ambient-bubble.b2{left:22%;width:7px;height:7px;animation-duration:4.8s;animation-delay:.7s}
+.ambient-bubble.b3{left:37%;width:10px;height:10px;animation-duration:4s;animation-delay:1.4s}
+.ambient-bubble.b4{left:50%;width:6px;height:6px;animation-duration:5.2s;animation-delay:.2s}
+.ambient-bubble.b5{left:64%;width:9px;height:9px;animation-duration:3.9s;animation-delay:1s}
+.ambient-bubble.b6{left:78%;width:6px;height:6px;animation-duration:4.5s;animation-delay:.5s}
+.ambient-bubble.b7{left:89%;width:8px;height:8px;animation-duration:3.7s;animation-delay:1.7s}
+@keyframes bubbleRise{0%{transform:translateY(0) scale(1);opacity:0}12%{opacity:.95}70%{opacity:.75}100%{transform:translateY(-168px) scale(.28);opacity:0}}
+@media (prefers-reduced-motion:reduce){
+  .tank-wave{animation:none}
+  .tank-bubble{display:none}
+  .ambient-bubble{display:none}
+}
+
+.calendar-panel{margin-top:8px}
+.weekdays,.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:10px}
+.weekdays{margin-bottom:8px}
+.weekdays span{text-align:center;color:var(--muted);font-size:12px;padding:6px 0}
+.calendar-day{
+  min-height:96px;border:1px solid var(--border);background:var(--card);border-radius:22px;padding:10px;text-align:left;cursor:pointer;
+  box-shadow:0 8px 18px rgba(110,108,160,.07);transition:.18s;position:relative;color:var(--text);
+}
+.calendar-day:hover{transform:translateY(-3px);box-shadow:0 16px 30px rgba(110,108,160,.13)}
+.calendar-day.other-month{opacity:.4}
+.calendar-day.weekend:not(.other-month):not(.has-record){background:#fffaf8;border-color:#f9e6df}
+.calendar-day.has-record{background:linear-gradient(180deg,#ffffff,#eefaf2);border-color:#d9efe2}
+.calendar-day.has-record::after{content:"";position:absolute;left:14px;bottom:11px;width:8px;height:8px;border-radius:50%;background:var(--mint);box-shadow:0 2px 8px rgba(159,227,191,.9)}
+.calendar-day.today{background:linear-gradient(135deg,#e8f1ff,#eef4ff);border-color:#bfd5ff;box-shadow:0 14px 28px rgba(159,196,255,.2)}
+.calendar-day.selected{border-color:var(--sky);box-shadow:0 0 0 3px rgba(159,196,255,.22)}
+.day-num{display:inline-flex;align-items:center;justify-content:center;min-width:24px;height:24px;border-radius:50%;font-size:13px;font-weight:700}
+.today .day-num{background:var(--sky);color:#fff}
+.day-summary{display:block;margin-top:14px;font-size:12px;line-height:1.45;color:#4c4960}
+.other-month .day-summary{color:#a19da8}
+.hint{text-align:center;color:var(--muted);font-size:12px;margin-top:16px}
+
+.overlay{position:fixed;inset:0;background:rgba(70,70,90,.25);z-index:40;display:none;backdrop-filter:blur(3px)}
+.overlay.open{display:flex}
+.panel{position:fixed;top:0;right:0;bottom:0;width:min(430px,100%);background:#fbfaff;z-index:41;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .2s ease;box-shadow:-16px 0 40px rgba(110,108,160,.2);border-radius:26px 0 0 26px}
+.overlay.open .panel{transform:translateX(0)}
+.panel-head{padding:20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;background:linear-gradient(135deg,var(--sky-soft),var(--peach-soft));border-radius:26px 0 0 0}
+.panel-head h3{margin:0;font-size:18px}
+.panel-head p{margin:6px 0 0;color:var(--muted);font-size:13px}
+.close-btn{border:0;background:none;font-size:26px;line-height:1;cursor:pointer;color:var(--muted)}
+.record-list{flex:1;overflow-y:auto;padding:16px 20px}
+.record-item{border:1px solid var(--border);border-radius:20px;padding:12px 14px;margin-bottom:10px;background:var(--card)}
+.record-item .main{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.record-item .nums{font-size:15px;font-weight:700}
+.record-item .meta{color:var(--muted);font-size:13px;margin-top:4px}
+.record-item .note{color:var(--muted);font-size:13px;margin-top:6px;font-style:italic}
+.record-item .ops{margin-top:8px;display:flex;gap:8px;justify-content:flex-end}
+.record-item .ops button{border:0;background:none;color:var(--muted);cursor:pointer;font-size:13px;padding:2px 6px}
+.record-item .ops button:hover{color:var(--sky)}
+.record-item .ops button.delete:hover{color:var(--peach)}
+.empty{padding:50px 0;text-align:center;color:var(--muted);font-size:14px}
+.add-btn{margin:0 20px 20px;padding:14px;border:0;border-radius:999px;background:linear-gradient(135deg,var(--sky),var(--peach));color:#fff;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 12px 24px rgba(159,196,255,.28);transition:.18s}
+.add-btn:hover{transform:translateY(-1px);box-shadow:0 16px 30px rgba(159,196,255,.36)}
+
+.modal-overlay{z-index:50;display:none;align-items:center;justify-content:center;padding:16px}
+.modal-overlay.open{display:flex}
+.modal{background:#fbfaff;border-radius:28px;width:min(440px,100%);max-height:92vh;overflow-y:auto;box-shadow:0 24px 60px rgba(110,108,160,.25)}
+.modal-head{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;background:linear-gradient(135deg,var(--sky-soft),var(--peach-soft));border-radius:28px 28px 0 0}
+.modal-head h3{margin:0;font-size:18px}
+form{padding:18px 20px 20px}
+form label{display:block;margin-bottom:14px;font-size:13px;color:var(--muted)}
+form input[type=date],form input[type=number],form input[type=text]{width:100%;margin-top:6px;padding:11px 12px;border:1px solid var(--border);border-radius:14px;font-size:15px;color:var(--text);background:#fff}
+form input:focus{outline:3px solid rgba(159,196,255,.22);border-color:var(--sky)}
+.pace-preview{margin:-2px 0 14px;padding:10px 12px;background:linear-gradient(135deg,var(--sky-soft),var(--peach-soft));border-radius:14px;font-size:14px;color:#4c4960}
+.form-actions{display:flex;justify-content:flex-end;gap:8px}
+.form-actions button{border:0;background:#fff;padding:10px 18px;border-radius:999px;cursor:pointer;font-size:14px;box-shadow:0 6px 14px rgba(110,108,160,.1)}
+.form-actions .primary{background:linear-gradient(135deg,var(--sky),var(--peach));color:#fff;font-weight:700}
+
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:rgba(65,61,86,.94);color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;z-index:60;opacity:0;transition:.2s}
+.toast.show{opacity:1}
+
+@media (max-width:680px){
+  .container{padding:14px 10px 40px}
+  .hero{padding:16px}
+  .ring{width:160px;height:160px;padding:9px}
+  .ring::after{inset:9px}
+  .ring-value{font-size:38px}
+  .hero-stats{grid-template-columns:1fr 1fr;min-width:0;width:100%;max-width:none}
+  .calendar-grid,.weekdays{gap:5px}
+  .calendar-day{min-height:68px;padding:6px;border-radius:15px}
+  .day-num{min-width:20px;height:20px;font-size:12px}
+  .day-summary{margin-top:9px;font-size:11px}
+  .panel{width:100%;height:88vh;top:auto;bottom:0;border-radius:26px 26px 0 0;transform:translateY(100%)}
+  .overlay.open .panel{transform:translateY(0)}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none!important;animation:none!important}
+  .blob{display:none}
+  .ring-dot{display:none}
+}
+</style>
+</head>
+<body>
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+<div class="blob blob-3"></div>
+<div class="container">
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">🏃</span>
+      <div>
+        <h1>跑步日历</h1>
+        <p id="subtitle">记录每一次跑步</p>
+      </div>
+    </div>
+    <div class="actions">
+      <button id="exportBtn" type="button">导出</button>
+      <button id="importBtn" type="button">导入</button>
+      <input id="importFile" type="file" accept=".json,application/json" hidden>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="month-nav">
+      <button id="prevBtn" type="button" aria-label="上一月">←</button>
+      <h2 id="monthLabel"></h2>
+      <button id="nextBtn" type="button" aria-label="下一月">→</button>
+      <button id="todayBtn" class="today-link" type="button">今天</button>
+    </div>
+    <div class="hero-center">
+      <div class="ring">
+        <div class="ring-dot"></div>
+        <div class="ring-inner">
+          <div>
+            <div class="ring-value"><span id="monthDistance">0.0</span></div>
+            <div class="ring-unit">km</div>
+            <div class="ring-label">本月累计距离</div>
+          </div>
+        </div>
+      </div>
+      <div class="hero-stats">
+        <div class="stat-chip pace-chip"><span>平均配速</span><strong id="monthPace">—</strong></div>
+        <div class="stat-chip"><span>本月时长</span><strong id="monthDuration">0分</strong></div>
+        <div class="stat-chip water-tank" id="waterTank">
+          <span class="tank-label">本月次数</span>
+          <strong class="tank-count" id="monthCount">0</strong>
+          <div class="tank-water" id="waterFill">
+          <svg class="tank-wave wave-back" viewBox="0 0 200 20" preserveAspectRatio="none" aria-hidden="true"><path d="M0 10 C 25 0, 45 20, 70 10 S 115 0, 140 10 S 185 20, 200 10 V 20 H 0 Z" fill="rgba(157,193,255,.32)"></path></svg>
+          <svg class="tank-wave wave-front" viewBox="0 0 200 20" preserveAspectRatio="none" aria-hidden="true"><path d="M0 11 C 30 2, 55 19, 85 11 S 140 3, 170 11 S 195 18, 200 11 V 20 H 0 Z" fill="rgba(255,255,255,.55)"></path></svg>
+          <i class="ambient-bubble b1"></i>
+          <i class="ambient-bubble b2"></i>
+          <i class="ambient-bubble b3"></i>
+          <i class="ambient-bubble b4"></i>
+          <i class="ambient-bubble b5"></i>
+          <i class="ambient-bubble b6"></i>
+          <i class="ambient-bubble b7"></i>
+        </div>
+        </div>
+        <div class="stat-chip"><span>累计</span><strong><span id="totalCount">0</span> 次 · <span id="totalDistance">0.0</span> km</strong></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="calendar-panel">
+    <div class="weekdays">
+      <span>周一</span><span>周二</span><span>周三</span><span>周四</span><span>周五</span><span>周六</span><span>周日</span>
+    </div>
+    <div id="calendarGrid" class="calendar-grid"></div>
+    <p class="hint">点击日期查看或添加跑步记录 · 左右方向键切换月份，T 回到今天</p>
+  </section>
+</div>
+
+<div id="panelOverlay" class="overlay">
+  <aside class="panel">
+    <div class="panel-head">
+      <div>
+        <h3 id="panelDate"></h3>
+        <p id="panelSummary"></p>
+      </div>
+      <button class="close-btn" id="closePanel" type="button" aria-label="关闭">×</button>
+    </div>
+    <div id="recordList" class="record-list"></div>
+    <button id="addRecordBtn" class="add-btn" type="button">+ 新增跑步</button>
+  </aside>
+</div>
+
+<div id="modalOverlay" class="overlay modal-overlay">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="modalTitle">新增跑步</h3>
+      <button class="close-btn" id="closeModal" type="button" aria-label="关闭">×</button>
+    </div>
+    <form id="recordForm">
+      <input type="hidden" id="recordId">
+      <label>日期
+        <input type="date" id="fieldDate" required>
+      </label>
+      <label>距离（公里）
+        <input type="number" id="fieldDistance" step="0.01" min="0.01" placeholder="例如 5" required>
+      </label>
+      <label>时长（分钟）
+        <input type="number" id="fieldDuration" step="1" min="1" placeholder="例如 30" required>
+      </label>
+      <label>备注（可选）
+        <input type="text" id="fieldNote" maxlength="200" placeholder="例如 轻松跑、夜跑">
+      </label>
+      <div class="pace-preview" id="pacePreview">输入距离和时长后显示配速</div>
+      <div class="form-actions">
+        <button type="button" id="cancelSave">取消</button>
+        <button type="submit" class="primary">保存</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+(function(){
+  const STORAGE_KEY = 'runningCalendar.records.v1';
+  const WEEKDAYS = ['周日','周一','周二','周三','周四','周五','周六'];
+
+  const grid = document.getElementById('calendarGrid');
+  const monthLabel = document.getElementById('monthLabel');
+  const subtitle = document.getElementById('subtitle');
+  const panelOverlay = document.getElementById('panelOverlay');
+  const panelDate = document.getElementById('panelDate');
+  const panelSummary = document.getElementById('panelSummary');
+  const recordList = document.getElementById('recordList');
+  const modalOverlay = document.getElementById('modalOverlay');
+  const modalTitle = document.getElementById('modalTitle');
+  const recordForm = document.getElementById('recordForm');
+  const recordIdInput = document.getElementById('recordId');
+  const fieldDate = document.getElementById('fieldDate');
+  const fieldDistance = document.getElementById('fieldDistance');
+  const fieldDuration = document.getElementById('fieldDuration');
+  const fieldNote = document.getElementById('fieldNote');
+  const pacePreview = document.getElementById('pacePreview');
+  const toast = document.getElementById('toast');
+
+  const monthCount = document.getElementById('monthCount');
+  const monthDistance = document.getElementById('monthDistance');
+  const monthDuration = document.getElementById('monthDuration');
+  const monthPace = document.getElementById('monthPace');
+  const totalCount = document.getElementById('totalCount');
+  const totalDistance = document.getElementById('totalDistance');
+  const waterTank = document.getElementById('waterTank');
+  const waterFill = document.getElementById('waterFill');
+
+  const importFile = document.getElementById('importFile');
+
+  let records = loadRecords();
+  let editingId = null;
+  let toastTimer = null;
+  const now = new Date();
+  let view = { year: now.getFullYear(), month: now.getMonth() };
+  let selectedDate = toKey(now);
+
+  function makeId(){
+    return 'r' + Date.now().toString(36) + Math.random().toString(36).slice(2,8);
+  }
+
+  function toKey(date){
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2,'0');
+    const d = String(date.getDate()).padStart(2,'0');
+    return y + '-' + m + '-' + d;
+  }
+
+  function dateFromKey(key){
+    const parts = key.split('-').map(Number);
+    return new Date(parts[0], parts[1]-1, parts[2]);
+  }
+
+  function loadRecords(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return [];
+      const parsed = JSON.parse(raw);
+      if(!Array.isArray(parsed)) return [];
+      return parsed.map(normalizeRecord).filter(isValidRecord);
+    }catch(e){
+      return [];
+    }
+  }
+
+  function saveRecords(){
+    try{
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+    }catch(e){
+      showToast('保存失败：浏览器可能不允许本地存储');
+    }
+  }
+
+  function normalizeRecord(r){
+    const obj = r || {};
+    return {
+      id: typeof obj.id === 'string' && obj.id ? obj.id : makeId(),
+      date: typeof obj.date === 'string' ? obj.date : '',
+      distanceKm: Number(obj.distanceKm),
+      durationMin: Number(obj.durationMin),
+      note: typeof obj.note === 'string' ? obj.note : ''
+    };
+  }
+
+  function isValidRecord(r){
+    return /^\d{4}-\d{2}-\d{2}$/.test(r.date) && isFinite(r.distanceKm) && r.distanceKm > 0 && isFinite(r.durationMin) && r.durationMin > 0;
+  }
+
+  function formatKm(value){
+    return (Math.round(value * 10) / 10).toFixed(1);
+  }
+
+  function formatDuration(min){
+    min = Math.round(min);
+    if(min < 60) return min + '分';
+    const h = Math.floor(min / 60);
+    const m = min % 60;
+    return m === 0 ? h + '小时' : h + '小时' + m + '分';
+  }
+
+  function formatPace(minPerKm){
+    if(!isFinite(minPerKm) || minPerKm <= 0) return '—';
+    let totalSec = Math.round(minPerKm * 60);
+    let mm = Math.floor(totalSec / 60);
+    let ss = totalSec % 60;
+    if(ss === 60){ mm += 1; ss = 0; }
+    return mm + "'" + String(ss).padStart(2,'0') + '"';
+  }
+
+  function escapeHtml(value){
+    return String(value ?? '')
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;')
+      .replace(/'/g,'&#39;');
+  }
+
+  function showToast(message){
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
+  }
+
+  function monthPrefix(){
+    return view.year + '-' + String(view.month + 1).padStart(2,'0');
+  }
+
+  function recordsForDate(key){
+    return records.filter(r => r.date === key);
+  }
+
+  function recordsForMonth(){
+    const prefix = monthPrefix();
+    return records.filter(r => r.date.startsWith(prefix));
+  }
+
+  function pourWater(){
+    if(!waterTank) return;
+    waterTank.classList.remove('pouring');
+    void waterTank.offsetWidth;
+    waterTank.classList.add('pouring');
+    for(let i = 0; i < 4; i++){
+      const bubble = document.createElement('i');
+      bubble.className = 'tank-bubble';
+      bubble.style.left = (16 + Math.random() * 62) + '%';
+      bubble.style.animationDelay = (Math.random() * 0.28) + 's';
+      waterTank.appendChild(bubble);
+      setTimeout(() => bubble.remove(), 1400);
+    }
+  }
+
+  function renderStats(){
+    const monthRecords = recordsForMonth();
+    const count = monthRecords.length;
+    const distance = monthRecords.reduce((s,r) => s + r.distanceKm, 0);
+    const duration = monthRecords.reduce((s,r) => s + r.durationMin, 0);
+    const pace = distance > 0 ? duration / distance : null;
+
+    monthCount.textContent = count;
+    if(waterFill){
+      waterFill.style.height = Math.min(100, (count / 20) * 100) + '%';
+    }
+    monthDistance.textContent = formatKm(distance);
+    monthDuration.textContent = formatDuration(duration);
+    monthPace.textContent = pace === null ? '—' : formatPace(pace);
+
+    totalCount.textContent = records.length;
+    totalDistance.textContent = formatKm(records.reduce((s,r) => s + r.distanceKm, 0));
+  }
+
+  function renderCalendar(){
+    monthLabel.textContent = view.year + '年' + (view.month + 1) + '月';
+    subtitle.textContent = '记录每一次跑步 · 本月 ' + recordsForMonth().length + ' 次';
+
+    const first = new Date(view.year, view.month, 1);
+    const offset = (first.getDay() + 6) % 7;
+    const start = new Date(view.year, view.month, 1 - offset);
+    const todayKey = toKey(new Date());
+    let html = '';
+
+    for(let i = 0; i < 42; i++){
+      const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i);
+      const key = toKey(d);
+      const inMonth = d.getMonth() === view.month;
+      const dayRecords = recordsForDate(key);
+      const classes = ['calendar-day'];
+      if(!inMonth) classes.push('other-month');
+      if(dayRecords.length > 0) classes.push('has-record');
+      if(inMonth && (d.getDay() === 0 || d.getDay() === 6)) classes.push('weekend');
+      if(key === todayKey) classes.push('today');
+      if(key === selectedDate && inMonth) classes.push('selected');
+
+      let summary = '';
+      if(dayRecords.length > 0){
+        const dist = dayRecords.reduce((s,r) => s + r.distanceKm, 0);
+        const dur = dayRecords.reduce((s,r) => s + r.durationMin, 0);
+        summary = dayRecords.length + '次 · ' + formatKm(dist) + ' km · ' + formatDuration(dur);
+      }
+
+      html += '<button type="button" class="' + classes.join(' ') + '" data-key="' + key + '">'
+        + '<span class="day-num">' + d.getDate() + '</span>'
+        + (summary ? '<span class="day-summary">' + escapeHtml(summary) + '</span>' : '')
+        + '</button>';
+    }
+    grid.innerHTML = html;
+    renderStats();
+  }
+
+  function renderPanel(){
+    const date = dateFromKey(selectedDate);
+    const dayRecords = recordsForDate(selectedDate);
+    const dist = dayRecords.reduce((s,r) => s + r.distanceKm, 0);
+    const dur = dayRecords.reduce((s,r) => s + r.durationMin, 0);
+    panelDate.textContent = date.getFullYear() + '年' + (date.getMonth() + 1) + '月' + date.getDate() + '日 ' + WEEKDAYS[date.getDay()];
+    panelSummary.textContent = dayRecords.length
+      ? '当天合计 ' + dayRecords.length + ' 次 · ' + formatKm(dist) + ' km · ' + formatDuration(dur)
+      : '这一天还没有跑步记录';
+
+    if(dayRecords.length === 0){
+      recordList.innerHTML = '<div class="empty">点击下方按钮，记录今天的第一次跑步 💪</div>';
+      return;
+    }
+
+    let html = '';
+    dayRecords.forEach(r => {
+      const pace = formatPace(r.durationMin / r.distanceKm);
+      html += '<div class="record-item" data-id="' + escapeHtml(r.id) + '">'
+        + '<div class="main"><div class="nums">' + formatKm(r.distanceKm) + ' km · ' + formatDuration(r.durationMin) + '</div></div>'
+        + '<div class="meta">配速 ' + pace + ' / 公里</div>'
+        + (r.note ? '<div class="note">' + escapeHtml(r.note) + '</div>' : '')
+        + '<div class="ops">'
+        + '<button type="button" data-action="edit" data-id="' + escapeHtml(r.id) + '">编辑</button>'
+        + '<button type="button" class="delete" data-action="delete" data-id="' + escapeHtml(r.id) + '">删除</button>'
+        + '</div></div>';
+    });
+    recordList.innerHTML = html;
+  }
+
+  function openPanel(key){
+    selectedDate = key;
+    renderCalendar();
+    renderPanel();
+    panelOverlay.classList.add('open');
+  }
+
+  function closePanel(){
+    panelOverlay.classList.remove('open');
+  }
+
+  function openModal(id){
+    editingId = id || null;
+    if(id){
+      const r = records.find(x => x.id === id);
+      if(!r) return;
+      recordIdInput.value = r.id;
+      fieldDate.value = r.date;
+      fieldDistance.value = r.distanceKm;
+      fieldDuration.value = r.durationMin;
+      fieldNote.value = r.note;
+      modalTitle.textContent = '编辑跑步';
+    }else{
+      recordIdInput.value = '';
+      fieldDate.value = selectedDate;
+      fieldDistance.value = '';
+      fieldDuration.value = '';
+      fieldNote.value = '';
+      modalTitle.textContent = '新增跑步';
+    }
+    updatePacePreview();
+    modalOverlay.classList.add('open');
+    setTimeout(() => fieldDistance.focus(), 50);
+  }
+
+  function closeModal(){
+    modalOverlay.classList.remove('open');
+    editingId = null;
+  }
+
+  function updatePacePreview(){
+    const d = parseFloat(fieldDistance.value);
+    const m = parseFloat(fieldDuration.value);
+    if(isFinite(d) && d > 0 && isFinite(m) && m > 0){
+      pacePreview.textContent = '配速：' + formatPace(m / d) + ' / 公里';
+    }else{
+      pacePreview.textContent = '输入距离和时长后显示配速';
+    }
+  }
+
+  function changeMonth(delta){
+    view = { year: view.year, month: view.month + delta };
+    const normalized = new Date(view.year, view.month, 1);
+    view.year = normalized.getFullYear();
+    view.month = normalized.getMonth();
+    selectedDate = toKey(normalized);
+    renderCalendar();
+  }
+
+  function goToday(){
+    const today = new Date();
+    view = { year: today.getFullYear(), month: today.getMonth() };
+    selectedDate = toKey(today);
+    renderCalendar();
+  }
+
+  function exportData(){
+    const blob = new Blob([JSON.stringify(records, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = '跑步日历-' + toKey(new Date()) + '.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('已导出 ' + records.length + ' 条记录');
+  }
+
+  function importData(file){
+    const reader = new FileReader();
+    reader.onload = function(){
+      try{
+        const parsed = JSON.parse(reader.result);
+        if(!Array.isArray(parsed)) throw new Error('格式不正确');
+        const cleaned = parsed.map(normalizeRecord).filter(isValidRecord);
+        if(cleaned.length === 0 && parsed.length > 0){
+          showToast('导入失败：没有找到有效记录');
+          return;
+        }
+        const ok = confirm('导入将替换当前 ' + records.length + ' 条记录为导入的 ' + cleaned.length + ' 条记录，确定吗？');
+        if(!ok) return;
+        records = cleaned;
+        saveRecords();
+        renderCalendar();
+        showToast('导入成功，共 ' + cleaned.length + ' 条记录');
+      }catch(e){
+        showToast('导入失败：文件不是有效的 JSON');
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  grid.addEventListener('click', function(e){
+    const cell = e.target.closest('.calendar-day');
+    if(!cell) return;
+    const d = dateFromKey(cell.dataset.key);
+    if(d.getMonth() !== view.month || d.getFullYear() !== view.year){
+      view = { year: d.getFullYear(), month: d.getMonth() };
+      selectedDate = cell.dataset.key;
+      renderCalendar();
+    }
+    openPanel(cell.dataset.key);
+  });
+
+  recordList.addEventListener('click', function(e){
+    const btn = e.target.closest('button[data-action]');
+    if(!btn) return;
+    const id = btn.dataset.id;
+    if(btn.dataset.action === 'edit'){
+      openModal(id);
+    }else if(btn.dataset.action === 'delete'){
+      const r = records.find(x => x.id === id);
+      if(!r) return;
+      if(!confirm('确定删除这条跑步记录吗？')) return;
+      records = records.filter(x => x.id !== id);
+      saveRecords();
+      renderCalendar();
+      renderPanel();
+      showToast('已删除');
+    }
+  });
+
+  document.getElementById('prevBtn').addEventListener('click', () => changeMonth(-1));
+  document.getElementById('nextBtn').addEventListener('click', () => changeMonth(1));
+  document.getElementById('todayBtn').addEventListener('click', goToday);
+  document.getElementById('closePanel').addEventListener('click', closePanel);
+  document.getElementById('addRecordBtn').addEventListener('click', () => openModal(null));
+  document.getElementById('closeModal').addEventListener('click', closeModal);
+  document.getElementById('cancelSave').addEventListener('click', closeModal);
+  document.getElementById('exportBtn').addEventListener('click', exportData);
+  document.getElementById('importBtn').addEventListener('click', () => importFile.click());
+  importFile.addEventListener('change', function(){
+    if(importFile.files && importFile.files[0]){
+      importData(importFile.files[0]);
+    }
+    importFile.value = '';
+  });
+
+  panelOverlay.addEventListener('click', function(e){
+    if(e.target === panelOverlay) closePanel();
+  });
+  modalOverlay.addEventListener('click', function(e){
+    if(e.target === modalOverlay) closeModal();
+  });
+
+  fieldDistance.addEventListener('input', updatePacePreview);
+  fieldDuration.addEventListener('input', updatePacePreview);
+
+  recordForm.addEventListener('submit', function(e){
+    e.preventDefault();
+    const date = fieldDate.value;
+    const distance = parseFloat(fieldDistance.value);
+    const duration = parseFloat(fieldDuration.value);
+    const note = fieldNote.value.trim();
+
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(date)){
+      showToast('请选择有效日期');
+      return;
+    }
+    if(!isFinite(distance) || distance <= 0){
+      showToast('距离必须大于 0');
+      return;
+    }
+    if(!isFinite(duration) || duration <= 0){
+      showToast('时长必须大于 0');
+      return;
+    }
+
+    if(editingId){
+      records = records.map(r => r.id === editingId
+        ? { id: editingId, date, distanceKm: distance, durationMin: duration, note }
+        : r);
+    }else{
+      records.push({ id: makeId(), date, distanceKm: distance, durationMin: duration, note });
+    }
+
+    saveRecords();
+    selectedDate = date;
+    renderCalendar();
+    if(panelOverlay.classList.contains('open')) renderPanel();
+    const wasEdit = !!editingId;
+    closeModal();
+    if(!wasEdit) pourWater();
+    showToast(wasEdit ? '已更新' : '已保存');
+  });
+
+  document.addEventListener('keydown', function(e){
+    const tag = (document.activeElement && document.activeElement.tagName) || '';
+    const typing = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
+    if(modalOverlay.classList.contains('open')){
+      if(e.key === 'Escape') closeModal();
+      return;
+    }
+    if(typing) return;
+    if(e.key === 'Escape') closePanel();
+    if(e.key === 'ArrowLeft') changeMonth(-1);
+    if(e.key === 'ArrowRight') changeMonth(1);
+    if(e.key.toLowerCase() === 't') goToday();
+  });
+
+  renderCalendar();
+})();
+</script>
+</body>
+</html>

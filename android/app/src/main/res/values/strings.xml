@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">跑步日历</string>
+    <string name="title_activity_main">跑步日历</string>
+    <string name="package_name">com.yuyu254254.runningcalendar</string>
+    <string name="custom_url_scheme">com.yuyu254254.runningcalendar</string>
+</resources>

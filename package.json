@@ -1,0 +1,1 @@
+{"name":"running-calendar-apk","version":"1.0.0","private":true,"scripts":{"cap":"cap","sync":"cap sync android","build":"cap sync android"},"dependencies":{"@capacitor/android":"^8.5.1","@capacitor/cli":"^8.5.1","@capacitor/core":"^8.5.1"}}
