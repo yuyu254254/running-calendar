@@ -63,7 +63,8 @@ button{font-family:inherit;color:inherit}
 .ring-value{font-size:46px;font-weight:800;line-height:1;background:linear-gradient(135deg,#6f9ef2,#f29b85);-webkit-background-clip:text;background-clip:text;color:transparent}
 .ring-unit{font-size:18px;font-weight:700;color:var(--muted)}
 .ring-label{font-size:12px;color:var(--muted);margin-top:8px}
-.hero-stats{display:grid;grid-template-columns:repeat(2,minmax(140px,1fr));gap:12px;min-width:300px;flex:1;max-width:520px}
+.hero-stats{display:grid;grid-template-columns:1.5fr 1fr;gap:12px;min-width:320px;flex:1;max-width:540px}
+.pace-chip{background:var(--lav-soft)}
 .stat-chip{background:var(--card);border:1px solid var(--border);border-radius:22px;padding:16px 18px;box-shadow:0 10px 24px rgba(110,108,160,.08)}
 .stat-chip span{display:block;color:var(--muted);font-size:12px;margin-bottom:6px}
 .stat-chip strong{font-size:26px;font-weight:800}
@@ -83,9 +84,19 @@ button{font-family:inherit;color:inherit}
 @keyframes waveMove{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 .tank-bubble{position:absolute;z-index:5;bottom:8px;width:9px;height:9px;border-radius:50%;background:radial-gradient(circle at 32% 30%,#ffffff 0 16%,rgba(255,255,255,.82) 42%,rgba(157,193,255,.2) 78%);box-shadow:0 0 10px rgba(255,255,255,.9);animation:bubbleUp 1.15s ease-out forwards;pointer-events:none}
 @keyframes bubbleUp{0%{transform:translateY(0) scale(.5);opacity:0}20%{opacity:.95}100%{transform:translateY(-82px) scale(1.32);opacity:0}}
+.ambient-bubble{position:absolute;z-index:3;bottom:4px;border-radius:50%;background:radial-gradient(circle at 32% 30%,#ffffff 0 20%,rgba(255,255,255,.78) 46%,rgba(157,193,255,.12) 78%);box-shadow:0 0 9px rgba(255,255,255,.8);opacity:0;pointer-events:none;animation:bubbleRise 4.6s linear infinite}
+.ambient-bubble.b1{left:8%;width:12px;height:12px;animation-duration:3.6s;animation-delay:0s}
+.ambient-bubble.b2{left:22%;width:7px;height:7px;animation-duration:4.8s;animation-delay:.7s}
+.ambient-bubble.b3{left:37%;width:10px;height:10px;animation-duration:4s;animation-delay:1.4s}
+.ambient-bubble.b4{left:50%;width:6px;height:6px;animation-duration:5.2s;animation-delay:.2s}
+.ambient-bubble.b5{left:64%;width:9px;height:9px;animation-duration:3.9s;animation-delay:1s}
+.ambient-bubble.b6{left:78%;width:6px;height:6px;animation-duration:4.5s;animation-delay:.5s}
+.ambient-bubble.b7{left:89%;width:8px;height:8px;animation-duration:3.7s;animation-delay:1.7s}
+@keyframes bubbleRise{0%{transform:translateY(0) scale(1);opacity:0}12%{opacity:.95}70%{opacity:.75}100%{transform:translateY(-168px) scale(.28);opacity:0}}
 @media (prefers-reduced-motion:reduce){
   .tank-wave{animation:none}
   .tank-bubble{display:none}
+  .ambient-bubble{display:none}
 }
 
 .calendar-panel{margin-top:8px}
@@ -208,16 +219,23 @@ form input:focus{outline:3px solid rgba(159,196,255,.22);border-color:var(--sky)
         </div>
       </div>
       <div class="hero-stats">
+        <div class="stat-chip pace-chip"><span>平均配速</span><strong id="monthPace">—</strong></div>
+        <div class="stat-chip"><span>本月时长</span><strong id="monthDuration">0分</strong></div>
         <div class="stat-chip water-tank" id="waterTank">
           <span class="tank-label">本月次数</span>
           <strong class="tank-count" id="monthCount">0</strong>
           <div class="tank-water" id="waterFill">
           <svg class="tank-wave wave-back" viewBox="0 0 200 20" preserveAspectRatio="none" aria-hidden="true"><path d="M0 10 C 25 0, 45 20, 70 10 S 115 0, 140 10 S 185 20, 200 10 V 20 H 0 Z" fill="rgba(157,193,255,.32)"></path></svg>
           <svg class="tank-wave wave-front" viewBox="0 0 200 20" preserveAspectRatio="none" aria-hidden="true"><path d="M0 11 C 30 2, 55 19, 85 11 S 140 3, 170 11 S 195 18, 200 11 V 20 H 0 Z" fill="rgba(255,255,255,.55)"></path></svg>
+          <i class="ambient-bubble b1"></i>
+          <i class="ambient-bubble b2"></i>
+          <i class="ambient-bubble b3"></i>
+          <i class="ambient-bubble b4"></i>
+          <i class="ambient-bubble b5"></i>
+          <i class="ambient-bubble b6"></i>
+          <i class="ambient-bubble b7"></i>
         </div>
         </div>
-        <div class="stat-chip"><span>本月时长</span><strong id="monthDuration">0分</strong></div>
-        <div class="stat-chip"><span>平均配速</span><strong id="monthPace">—</strong></div>
         <div class="stat-chip"><span>累计</span><strong><span id="totalCount">0</span> 次 · <span id="totalDistance">0.0</span> km</strong></div>
       </div>
     </div>
