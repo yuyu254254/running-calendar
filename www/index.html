@@ -21,7 +21,7 @@
   --border:#eeebf6;
 }
 *{box-sizing:border-box}
-html,body{margin:0;padding:0}
+html,body{margin:0;padding:0;overflow-x:hidden}
 body{
   font-family:"Microsoft YaHei","PingFang SC","Segoe UI",sans-serif;
   background:linear-gradient(160deg,#fbfbff 0%,#f2f6ff 45%,#faf4f8 100%);
@@ -118,7 +118,12 @@ button{font-family:inherit;color:inherit}
 .today .day-num{background:var(--sky);color:#fff}
 .day-summary{display:block;margin-top:14px;font-size:12px;line-height:1.45;color:#4c4960}
 .other-month .day-summary{color:#a19da8}
+.day-summary .ds-row{display:inline}
+.day-summary .ds-count::after{content:" · "}
+.day-summary .ds-dist::after{content:" · "}
+.day-summary .ds-unit::before{content:" "}
 .hint{text-align:center;color:var(--muted);font-size:12px;margin-top:16px}
+.hint .hint-mob{display:none}
 
 .overlay{position:fixed;inset:0;background:rgba(70,70,90,.25);z-index:40;display:none;backdrop-filter:blur(3px)}
 .overlay.open{display:flex}
@@ -165,7 +170,22 @@ form input:focus{outline:3px solid rgba(159,196,255,.22);border-color:var(--sky)
   .ring{width:160px;height:160px;padding:9px}
   .ring::after{inset:9px}
   .ring-value{font-size:38px}
-  .hero-stats{grid-template-columns:1fr 1fr;min-width:0;width:100%;max-width:none}
+  .hero-center{flex-direction:column;flex-wrap:nowrap;gap:18px}
+  .hero-stats{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;min-width:0;width:100%;max-width:none}
+  .hero-stats .stat-chip{min-width:0}
+  .hero-stats .stat-chip strong{font-size:22px;line-height:1.25}
+  .hero-stats .water-tank .tank-count{font-size:30px}
+  .hero-stats .pace-chip{display:none}
+  .hero-stats .stat-chip:last-child{grid-column:1/-1}
+  .hero-stats .stat-chip:last-child strong span{display:inline;color:var(--text);font-size:inherit;font-weight:inherit;margin:0}
+  .hero-stats .stat-chip.water-tank{background:linear-gradient(180deg,#eaf2ff 0%,#dcebff 100%)}
+  .calendar-day.has-record::after{left:auto;bottom:auto;top:6px;right:7px;width:7px;height:7px}
+  .day-summary .ds-row{display:block}
+  .day-summary .ds-count{display:none}
+  .day-summary .ds-dist::after{content:""}
+  .day-summary .ds-unit::before{content:""}
+  .hint .hint-desk{display:none}
+  .hint .hint-mob{display:inline}
   .calendar-grid,.weekdays{gap:5px}
   .calendar-day{min-height:68px;padding:6px;border-radius:15px}
   .day-num{min-width:20px;height:20px;font-size:12px}
@@ -246,7 +266,7 @@ form input:focus{outline:3px solid rgba(159,196,255,.22);border-color:var(--sky)
       <span>周一</span><span>周二</span><span>周三</span><span>周四</span><span>周五</span><span>周六</span><span>周日</span>
     </div>
     <div id="calendarGrid" class="calendar-grid"></div>
-    <p class="hint">点击日期查看或添加跑步记录 · 左右方向键切换月份，T 回到今天</p>
+    <p class="hint">点击日期查看或添加跑步记录 · <span class="hint-desk">左右方向键切换月份，T 回到今天</span><span class="hint-mob">用顶部箭头切换月份</span></p>
   </section>
 </div>
 
@@ -497,12 +517,14 @@ form input:focus{outline:3px solid rgba(159,196,255,.22);border-color:var(--sky)
       if(dayRecords.length > 0){
         const dist = dayRecords.reduce((s,r) => s + r.distanceKm, 0);
         const dur = dayRecords.reduce((s,r) => s + r.durationMin, 0);
-        summary = dayRecords.length + '次 · ' + formatKm(dist) + ' km · ' + formatDuration(dur);
+        summary = '<span class="ds-row ds-count">' + dayRecords.length + '次</span>'
+          + '<span class="ds-row ds-dist"><span class="ds-num">' + formatKm(dist) + '</span><span class="ds-unit">km</span></span>'
+          + '<span class="ds-row ds-dur">' + formatDuration(dur) + '</span>';
       }
 
       html += '<button type="button" class="' + classes.join(' ') + '" data-key="' + key + '">'
         + '<span class="day-num">' + d.getDate() + '</span>'
-        + (summary ? '<span class="day-summary">' + escapeHtml(summary) + '</span>' : '')
+        + (summary ? '<span class="day-summary">' + summary + '</span>' : '')
         + '</button>';
     }
     grid.innerHTML = html;
