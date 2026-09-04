@@ -177,7 +177,9 @@ button{font-family:inherit;color:inherit}
 .seg button{flex:1;border:0;background:transparent;padding:9px 0;border-radius:10px;cursor:pointer;font-size:14px;color:var(--muted);font-weight:700}
 .seg button.active{background:#fff;color:#5b8de0;box-shadow:0 4px 10px rgba(110,108,160,.12)}
 .type-list{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
-.type-row{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--border);border-radius:14px;background:#fff;font-size:14px}
+.type-row{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--border);border-radius:14px;background:#fff;font-size:14px;cursor:pointer;transition:background .15s}
+.type-row:hover{background:var(--sky-soft)}
+.type-edit-form{margin:4px 0 10px}
 .type-row .t-emoji{font-size:18px;line-height:1}
 .type-row .t-name{flex:1;font-weight:700}
 .type-row .t-tag{color:var(--muted);font-size:12px}
@@ -368,7 +370,7 @@ form input:focus{outline:3px solid rgba(159,196,255,.22);border-color:var(--sky)
       </div>
       <div class="setting-block">
         <h4>运动类型</h4>
-        <p>记录运动时可选的类型；自定义类型只记录时长。</p>
+        <p>记录运动时可选的类型；点击类型可改名或换图标，自定义类型可用 × 删除。</p>
         <div class="type-list" id="settingsTypeList"></div>
         <button type="button" class="add-type-btn" id="addTypeBtn">＋ 添加运动类型</button>
         <div class="add-type-form" id="addTypeForm" hidden>
@@ -437,7 +439,7 @@ form input:focus{outline:3px solid rgba(159,196,255,.22);border-color:var(--sky)
     {id:'swim',name:'游泳',emoji:'🏊',hasDistance:true},
     {id:'other',name:'其他',emoji:'⚡',hasDistance:false}
   ];
-  const EMOJI_CHOICES = ['🏸','⚽','🏓','🧘','🚶','🥾','🧗','🤸','⛹️','🤾','🏐','🎾'];
+  const EMOJI_CHOICES = ['🏃','🏋️','🏀','🚴','🏊','⚡','🏸','⚽','🏓','🧘','🚶','🥾','🧗','🤸','⛹️','🤾','🏐','🎾'];
   const WEEKDAYS = ['周日','周一','周二','周三','周四','周五','周六'];
 
   const grid = document.getElementById('calendarGrid');
@@ -534,6 +536,15 @@ form input:focus{outline:3px solid rgba(159,196,255,.22);border-color:var(--sky)
             .filter(t => t && typeof t.id === 'string' && typeof t.name === 'string' && t.name)
             .map(t => ({ id: t.id, name: String(t.name).slice(0,6), emoji: typeof t.emoji === 'string' && t.emoji ? t.emoji : '⚡', hasDistance: false }));
         }
+        s.typeOverrides = {};
+        if(p && p.typeOverrides && typeof p.typeOverrides === 'object' && !Array.isArray(p.typeOverrides)){
+          Object.keys(p.typeOverrides).forEach(function(k){
+            const v = p.typeOverrides[k];
+            if(v && typeof v.name === 'string' && v.name.trim()){
+              s.typeOverrides[k] = { name: v.name.trim().slice(0,6), emoji: typeof v.emoji === 'string' && v.emoji ? v.emoji : '' };
+            }
+          });
+        }
       }
     }catch(e){}
     return s;
@@ -545,8 +556,15 @@ form input:focus{outline:3px solid rgba(159,196,255,.22);border-color:var(--sky)
     }catch(e){}
   }
 
+  function applyOverrides(list, ov){
+    return list.map(function(t){
+      const o = ov[t.id];
+      return o ? { id: t.id, name: (o.name || t.name), emoji: (o.emoji || t.emoji), hasDistance: t.hasDistance } : t;
+    });
+  }
   function allTypes(){
-    return BUILTIN_TYPES.concat(Array.isArray(settings.customTypes) ? settings.customTypes : []);
+    return applyOverrides(BUILTIN_TYPES, settings.typeOverrides || {})
+      .concat(Array.isArray(settings.customTypes) ? settings.customTypes : []);
   }
   function typeMeta(id){
     return allTypes().find(t => t.id === id) || BUILTIN_TYPES.find(t => t.id === 'other');
@@ -925,16 +943,25 @@ form input:focus{outline:3px solid rgba(159,196,255,.22);border-color:var(--sky)
 
   let settingsDraft = null;
   let newTypeEmoji = EMOJI_CHOICES[0];
+  let editingTypeId = null;
+  let editTypeEmoji = EMOJI_CHOICES[0];
+  let editTypeName = '';
+  function isBuiltinType(id){
+    return BUILTIN_TYPES.some(function(b){ return b.id === id; });
+  }
   function draftTypes(){
-    return BUILTIN_TYPES.concat(settingsDraft.customTypes);
+    return applyOverrides(BUILTIN_TYPES, settingsDraft.typeOverrides || {})
+      .concat(settingsDraft.customTypes);
   }
   function openSettings(){
     settingsDraft = {
       monthlyGoal: settings.monthlyGoal,
       ringMetric: settings.ringMetric,
-      customTypes: JSON.parse(JSON.stringify(settings.customTypes || []))
+      customTypes: JSON.parse(JSON.stringify(settings.customTypes || [])),
+      typeOverrides: JSON.parse(JSON.stringify(settings.typeOverrides || {}))
     };
     newTypeEmoji = EMOJI_CHOICES[0];
+    editingTypeId = null;
     goalInput.value = settingsDraft.monthlyGoal;
     updateStepperState();
     document.getElementById('addTypeForm').hidden = true;
@@ -952,13 +979,36 @@ form input:focus{outline:3px solid rgba(159,196,255,.22);border-color:var(--sky)
   function renderSettingsTypeList(){
     const list = document.getElementById('settingsTypeList');
     list.innerHTML = draftTypes().map(function(t){
-      const custom = !BUILTIN_TYPES.some(function(b){ return b.id === t.id; });
-      return '<div class="type-row"><span class="t-emoji">' + t.emoji + '</span>'
+      const custom = !isBuiltinType(t.id);
+      let html = '<div class="type-row" data-edit="' + escapeHtml(t.id) + '">'
+        + '<span class="t-emoji">' + t.emoji + '</span>'
         + '<span class="t-name">' + escapeHtml(t.name) + '</span>'
         + '<span class="t-tag">' + (t.hasDistance ? '计距离' : '仅时长') + '</span>'
         + (custom ? '<button type="button" class="t-del" data-del="' + escapeHtml(t.id) + '" aria-label="删除类型">×</button>' : '')
         + '</div>';
+      if(editingTypeId === t.id){
+        const emojis = EMOJI_CHOICES.map(function(em){
+          return '<button type="button" data-edit-emoji="' + em + '"' + (em === editTypeEmoji ? ' class="active"' : '') + '>' + em + '</button>';
+        }).join('');
+        html += '<div class="add-type-form type-edit-form">'
+          + '<input type="text" data-edit-name maxlength="6" value="' + escapeHtml(editTypeName || t.name) + '" aria-label="类型名称">'
+          + '<div class="emoji-grid">' + emojis + '</div>'
+          + '<div class="add-type-ops">'
+          + (!custom && settingsDraft.typeOverrides[t.id] ? '<button type="button" data-edit-reset>恢复默认</button>' : '')
+          + '<button type="button" data-edit-cancel>取消</button>'
+          + '<button type="button" class="primary" data-edit-save>保存</button>'
+          + '</div></div>';
+      }
+      return html;
     }).join('');
+    if(editingTypeId){
+      const inp = list.querySelector('[data-edit-name]');
+      if(inp){ setTimeout(function(){
+        inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length);
+        const form = inp.closest('.type-edit-form');
+        if(form) form.scrollIntoView({block:'nearest', behavior:'smooth'});
+      }, 60); }
+    }
   }
   function renderEmojiGrid(){
     const grid = document.getElementById('emojiGrid');
@@ -1003,7 +1053,8 @@ form input:focus{outline:3px solid rgba(159,196,255,.22);border-color:var(--sky)
     settings = {
       monthlyGoal: g,
       ringMetric: settingsDraft.ringMetric === 'duration' ? 'duration' : 'distance',
-      customTypes: settingsDraft.customTypes
+      customTypes: settingsDraft.customTypes,
+      typeOverrides: settingsDraft.typeOverrides
     };
     saveSettings();
     renderCalendar();
@@ -1016,18 +1067,71 @@ form input:focus{outline:3px solid rgba(159,196,255,.22);border-color:var(--sky)
     settingsDraft.ringMetric = b.dataset.metric;
     renderRingSeg();
   });
+  document.getElementById('settingsTypeList').addEventListener('input', function(e){
+    const inp = e.target.closest && e.target.closest('[data-edit-name]');
+    if(inp) editTypeName = inp.value;
+  });
   document.getElementById('settingsTypeList').addEventListener('click', function(e){
-    const b = e.target.closest('[data-del]');
-    if(!b) return;
-    const id = b.dataset.del;
-    if(records.some(function(r){ return r.type === id; })){
-      showToast('该类型已有运动记录，无法删除');
+    const list = document.getElementById('settingsTypeList');
+    const emBtn = e.target.closest('[data-edit-emoji]');
+    if(emBtn){
+      const nameInp = list.querySelector('[data-edit-name]');
+      if(nameInp) editTypeName = nameInp.value;
+      editTypeEmoji = emBtn.dataset.editEmoji;
+      renderSettingsTypeList();
       return;
     }
-    settingsDraft.customTypes = settingsDraft.customTypes.filter(function(t){ return t.id !== id; });
-    renderSettingsTypeList();
+    if(e.target.closest('[data-edit-save]')){
+      const inp = list.querySelector('[data-edit-name]');
+      const name = inp.value.trim();
+      if(!name){ showToast('请输入类型名称'); return; }
+      if(name.length > 6){ showToast('类型名称最多 6 个字'); return; }
+      const dup = draftTypes().some(function(t){ return t.id !== editingTypeId && t.name === name; });
+      if(dup){ showToast('已存在同名类型'); return; }
+      if(isBuiltinType(editingTypeId)){
+        settingsDraft.typeOverrides[editingTypeId] = { name: name, emoji: editTypeEmoji };
+      }else{
+        const t = settingsDraft.customTypes.find(function(x){ return x.id === editingTypeId; });
+        if(t){ t.name = name; t.emoji = editTypeEmoji; }
+      }
+      editingTypeId = null;
+      renderSettingsTypeList();
+      showToast('已修改，点击底部「保存」后生效');
+      return;
+    }
+    if(e.target.closest('[data-edit-cancel]')){ editingTypeId = null; renderSettingsTypeList(); return; }
+    if(e.target.closest('[data-edit-reset]')){
+      delete settingsDraft.typeOverrides[editingTypeId];
+      editingTypeId = null;
+      renderSettingsTypeList();
+      return;
+    }
+    const del = e.target.closest('[data-del]');
+    if(del){
+      const id = del.dataset.del;
+      if(records.some(function(r){ return r.type === id; })){
+        showToast('该类型已有运动记录，无法删除');
+        return;
+      }
+      settingsDraft.customTypes = settingsDraft.customTypes.filter(function(t){ return t.id !== id; });
+      if(editingTypeId === id) editingTypeId = null;
+      renderSettingsTypeList();
+      return;
+    }
+    const row = e.target.closest('[data-edit]');
+    if(row){
+      if(row.dataset.edit === editingTypeId){ editingTypeId = null; renderSettingsTypeList(); return; }
+      editingTypeId = row.dataset.edit;
+      const t = draftTypes().find(function(x){ return x.id === editingTypeId; });
+      editTypeEmoji = t ? t.emoji : EMOJI_CHOICES[0];
+      editTypeName = t ? t.name : '';
+      document.getElementById('addTypeForm').hidden = true;
+      renderSettingsTypeList();
+    }
   });
   document.getElementById('addTypeBtn').addEventListener('click', function(){
+    editingTypeId = null;
+    renderSettingsTypeList();
     document.getElementById('addTypeForm').hidden = false;
     setTimeout(function(){ document.getElementById('newTypeName').focus(); }, 30);
   });
