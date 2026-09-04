@@ -63,17 +63,18 @@ button{font-family:inherit;color:inherit}
 .ring-value{font-size:46px;font-weight:800;line-height:1;background:linear-gradient(135deg,#6f9ef2,#f29b85);-webkit-background-clip:text;background-clip:text;color:transparent}
 .ring-unit{font-size:18px;font-weight:700;color:var(--muted)}
 .ring-label{font-size:12px;color:var(--muted);margin-top:8px}
-.hero-stats{display:grid;grid-template-columns:1.5fr 1fr;gap:12px;min-width:320px;flex:1;max-width:540px}
-.pace-chip{background:var(--lav-soft)}
-.stat-chip{background:var(--card);border:1px solid var(--border);border-radius:22px;padding:16px 18px;box-shadow:0 10px 24px rgba(110,108,160,.08)}
-.stat-chip span{display:block;color:var(--muted);font-size:12px;margin-bottom:6px}
+.hero-stats{display:grid;grid-template-columns:1.3fr 1fr;grid-template-rows:1fr 1fr;gap:12px;min-width:320px;flex:1;max-width:540px;height:236px}
+.stat-chip{background:var(--card);border:1px solid var(--border);border-radius:22px;padding:16px 18px;box-shadow:0 10px 24px rgba(110,108,160,.08);display:flex;flex-direction:column;justify-content:center}
+.stat-chip>span{display:block;color:var(--muted);font-size:12px;margin-bottom:6px}
 .stat-chip strong{font-size:26px;font-weight:800}
-.stat-chip:nth-child(1){background:var(--sky-soft)}
-.stat-chip:nth-child(2){background:var(--peach-soft)}
-.stat-chip:nth-child(3){background:var(--lav-soft)}
-.stat-chip:nth-child(4){background:var(--mint-soft)}
+.chip-duration{background:var(--peach-soft)}
+.chip-total{background:var(--mint-soft)}
+.hero-stats .water-tank{grid-column:1;grid-row:1 / span 2}
+.hero-stats .chip-duration{grid-column:2;grid-row:1}
+.hero-stats .chip-total{grid-column:2;grid-row:2}
+.hero-stats .chip-duration strong,.hero-stats .chip-total strong{font-size:23px;line-height:1.3}
 
-.water-tank{position:relative;overflow:hidden;padding:0;aspect-ratio:1/1;background:linear-gradient(180deg,#eaf2ff 0%,#dcebff 100%);border-color:#c8d9ff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.75),inset 0 -18px 28px rgba(159,196,255,.18),0 14px 30px rgba(110,108,160,.12)}
+.water-tank{position:relative;overflow:hidden;padding:0;aspect-ratio:auto;background:linear-gradient(180deg,#eaf2ff 0%,#dcebff 100%);border-color:#c8d9ff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.75),inset 0 -18px 28px rgba(159,196,255,.18),0 14px 30px rgba(110,108,160,.12)}
 .water-tank::before{content:"";position:absolute;z-index:1;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.35),transparent 42%);pointer-events:none}
 .water-tank .tank-label{position:absolute;z-index:4;top:16px;left:18px;color:var(--muted);font-size:12px;letter-spacing:.04em}
 .water-tank .tank-count{position:absolute;z-index:4;top:38px;left:14px;min-width:46px;padding:5px 10px;font-size:30px;font-weight:800;color:#4f7fe0;background:rgba(255,255,255,.72);border-radius:999px;backdrop-filter:blur(5px);box-shadow:0 6px 16px rgba(110,108,160,.1)}
@@ -220,13 +221,13 @@ form input:focus{outline:3px solid rgba(159,196,255,.22);border-color:var(--sky)
   .ring::after{inset:9px}
   .ring-value{font-size:38px}
   .hero-center{flex-direction:column;flex-wrap:nowrap;gap:18px}
-  .hero-stats{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;min-width:0;width:100%;max-width:none}
+  .hero-stats{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto auto;gap:10px;min-width:0;width:100%;max-width:none;height:auto}
   .hero-stats .stat-chip{min-width:0}
-  .hero-stats .stat-chip strong{font-size:22px;line-height:1.25}
-  .hero-stats .water-tank .tank-count{font-size:30px}
-  .hero-stats .pace-chip{display:none}
-  .hero-stats .stat-chip:last-child{grid-column:1/-1}
-  .hero-stats .stat-chip:last-child strong span{display:inline;color:var(--text);font-size:inherit;font-weight:inherit;margin:0}
+  .hero-stats .chip-duration{grid-column:1;grid-row:1}
+  .hero-stats .chip-total{grid-column:2;grid-row:1}
+  .hero-stats .water-tank{grid-column:1/-1;grid-row:2;aspect-ratio:auto;min-height:170px}
+  .hero-stats .stat-chip strong{font-size:19px;line-height:1.3}
+  .hero-stats .water-tank .tank-count{font-size:34px;top:42px}
   .hero-stats .stat-chip.water-tank{background:linear-gradient(180deg,#eaf2ff 0%,#dcebff 100%)}
   .calendar-day.has-record::after{left:auto;bottom:auto;top:6px;right:7px;width:7px;height:7px}
   .day-summary .ds-row{display:block}
@@ -293,8 +294,7 @@ form input:focus{outline:3px solid rgba(159,196,255,.22);border-color:var(--sky)
         </div>
       </div>
       <div class="hero-stats">
-        <div class="stat-chip pace-chip"><span>平均配速</span><strong id="monthPace">—</strong></div>
-        <div class="stat-chip"><span>本月时长</span><strong id="monthDuration">0分</strong></div>
+        <div class="stat-chip chip-duration"><span>本月时长</span><strong id="monthDuration">0分</strong></div>
         <div class="stat-chip water-tank" id="waterTank">
           <span class="tank-label">本月次数</span>
           <strong class="tank-count" id="monthCount">0</strong>
@@ -310,7 +310,7 @@ form input:focus{outline:3px solid rgba(159,196,255,.22);border-color:var(--sky)
           <i class="ambient-bubble b7"></i>
         </div>
         </div>
-        <div class="stat-chip"><span>累计</span><strong><span id="totalCount">0</span> 次 · <span id="totalValue">0.0</span> <span id="totalUnit">km</span></strong></div>
+        <div class="stat-chip chip-total"><span>累计</span><strong><span id="totalCount">0</span> 次 · <span id="totalValue">0.0</span> <span id="totalUnit">km</span></strong></div>
       </div>
     </div>
   </section>
@@ -461,7 +461,6 @@ form input:focus{outline:3px solid rgba(159,196,255,.22);border-color:var(--sky)
   const monthCount = document.getElementById('monthCount');
   const monthDistance = document.getElementById('monthDistance');
   const monthDuration = document.getElementById('monthDuration');
-  const monthPace = document.getElementById('monthPace');
   const totalCount = document.getElementById('totalCount');
   const totalValue = document.getElementById('totalValue');
   const totalUnit = document.getElementById('totalUnit');
@@ -647,17 +646,11 @@ form input:focus{outline:3px solid rgba(159,196,255,.22);border-color:var(--sky)
     const count = monthRecords.length;
     const distance = monthRecords.reduce((sum,r) => sum + (r.distanceKm || 0), 0);
     const duration = monthRecords.reduce((sum,r) => sum + r.durationMin, 0);
-    const dRecs = monthRecords.filter(r => typeMeta(r.type).hasDistance);
-    const dDist = dRecs.reduce((sum,r) => sum + (r.distanceKm || 0), 0);
-    const dDur = dRecs.reduce((sum,r) => sum + r.durationMin, 0);
-    const pace = dDist > 0 ? dDur / dDist : null;
-
     monthCount.textContent = count + '/' + settings.monthlyGoal;
     if(waterFill){
       waterFill.style.height = Math.min(100, (count / settings.monthlyGoal) * 100) + '%';
     }
     monthDuration.textContent = formatDuration(duration);
-    monthPace.textContent = pace === null ? '—' : formatPace(pace);
 
     totalCount.textContent = records.length;
     const allDistance = records.reduce((sum,r) => sum + (r.distanceKm || 0), 0);
