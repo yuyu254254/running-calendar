@@ -205,6 +205,7 @@ button{font-family:inherit;color:inherit}
 .modal-head h3{margin:0;font-size:18px}
 form{padding:18px 20px 20px}
 form label{display:block;margin-bottom:14px;font-size:13px;color:var(--muted)}
+.type-field{display:block;margin-bottom:14px;font-size:13px;color:var(--muted)}
 form input[type=date],form input[type=number],form input[type=text]{width:100%;margin-top:6px;padding:11px 12px;border:1px solid var(--border);border-radius:14px;font-size:15px;color:var(--text);background:#fff}
 form input:focus{outline:3px solid rgba(159,196,255,.22);border-color:var(--sky)}
 .pace-preview{margin:-2px 0 14px;padding:10px 12px;background:linear-gradient(135deg,var(--sky-soft),var(--peach-soft));border-radius:14px;font-size:14px;color:#4c4960}
@@ -398,9 +399,10 @@ form input:focus{outline:3px solid rgba(159,196,255,.22);border-color:var(--sky)
     </div>
     <form id="recordForm">
       <input type="hidden" id="recordId">
-      <label>运动类型
+      <div class="type-field">
+        <span class="field-caption">运动类型</span>
         <div class="type-picker" id="typePicker"></div>
-      </label>
+      </div>
       <label>日期
         <input type="date" id="fieldDate" required>
       </label>
