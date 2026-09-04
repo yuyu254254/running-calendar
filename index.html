@@ -147,6 +147,26 @@ button{font-family:inherit;color:inherit}
 .add-btn{margin:0 20px 20px;padding:14px;border:0;border-radius:999px;background:linear-gradient(135deg,var(--sky),var(--peach));color:#fff;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 12px 24px rgba(159,196,255,.28);transition:.18s}
 .add-btn:hover{transform:translateY(-1px);box-shadow:0 16px 30px rgba(159,196,255,.36)}
 
+.settings-btn{width:44px;height:44px;border:0;background:var(--card);border-radius:50%;cursor:pointer;display:grid;place-items:center;box-shadow:0 8px 18px rgba(110,108,160,.12);transition:.18s;color:var(--muted);flex:0 0 auto;padding:0}
+.settings-btn:hover{background:var(--sky-soft);color:#5b8de0;transform:translateY(-1px)}
+.settings-btn svg{width:21px;height:21px}
+.settings-drawer{position:fixed;top:0;right:0;bottom:0;width:min(420px,100%);background:#fbfaff;z-index:41;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .2s ease;box-shadow:-16px 0 40px rgba(110,108,160,.2);border-radius:26px 0 0 26px}
+.overlay.open .settings-drawer{transform:translateX(0)}
+.settings-body{flex:1;overflow-y:auto;padding:20px}
+.setting-block{border:1px solid var(--border);border-radius:20px;padding:16px 18px;margin-bottom:14px;background:var(--card)}
+.setting-block h4{margin:0 0 4px;font-size:15px}
+.setting-block p{margin:0 0 14px;color:var(--muted);font-size:13px;line-height:1.55}
+.stepper{display:flex;align-items:center;gap:10px}
+.stepper button{width:40px;height:40px;border:0;border-radius:50%;background:var(--sky-soft);color:#5b8de0;font-size:20px;font-weight:700;cursor:pointer;box-shadow:0 6px 14px rgba(110,108,160,.12);transition:.15s;flex:0 0 auto;line-height:1;padding:0}
+.stepper button:hover:not(:disabled){transform:translateY(-1px)}
+.stepper button:disabled{opacity:.35;cursor:default}
+.stepper input{width:66px;text-align:center;padding:9px 0;border:1px solid var(--border);border-radius:14px;font-size:18px;font-weight:700;color:var(--text);background:#fff;flex:0 0 auto}
+.stepper input:focus{outline:3px solid rgba(159,196,255,.22);border-color:var(--sky)}
+.stepper .unit{color:var(--muted);font-size:14px;white-space:nowrap}
+.settings-foot{padding:16px 20px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px}
+.settings-foot button{border:0;background:#fff;padding:11px 20px;border-radius:999px;cursor:pointer;font-size:14px;box-shadow:0 6px 14px rgba(110,108,160,.1)}
+.settings-foot .primary{background:linear-gradient(135deg,var(--sky),var(--peach));color:#fff;font-weight:700}
+
 .modal-overlay{z-index:50;display:none;align-items:center;justify-content:center;padding:16px}
 .modal-overlay.open{display:flex}
 .modal{background:#fbfaff;border-radius:28px;width:min(440px,100%);max-height:92vh;overflow-y:auto;box-shadow:0 24px 60px rgba(110,108,160,.25)}
@@ -163,6 +183,7 @@ form input:focus{outline:3px solid rgba(159,196,255,.22);border-color:var(--sky)
 
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:rgba(65,61,86,.94);color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;z-index:60;opacity:0;transition:.2s}
 .toast.show{opacity:1}
+#settingsOverlay.open ~ #toast{bottom:104px}
 
 @media (max-width:680px){
   .container{padding:14px 10px 40px}
@@ -207,6 +228,9 @@ form input:focus{outline:3px solid rgba(159,196,255,.22);border-color:var(--sky)
 <div class="container">
   <header class="topbar">
     <div class="brand">
+      <button id="settingsBtn" class="settings-btn" type="button" aria-label="设置">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+      </button>
       <span class="logo">🏃</span>
       <div>
         <h1>跑步日历</h1>
@@ -284,6 +308,34 @@ form input:focus{outline:3px solid rgba(159,196,255,.22);border-color:var(--sky)
   </aside>
 </div>
 
+<div id="settingsOverlay" class="overlay">
+  <aside class="settings-drawer">
+    <div class="panel-head">
+      <div>
+        <h3>设置</h3>
+        <p>个性化你的跑步日历</p>
+      </div>
+      <button class="close-btn" id="closeSettings" type="button" aria-label="关闭">×</button>
+    </div>
+    <div class="settings-body">
+      <div class="setting-block">
+        <h4>月度目标</h4>
+        <p>每月跑步达到目标次数时，本月次数水箱蓄满。</p>
+        <div class="stepper">
+          <button type="button" id="goalMinus" aria-label="减少目标">−</button>
+          <input type="number" id="goalInput" min="1" max="99" step="1" inputmode="numeric" aria-label="月度目标次数">
+          <button type="button" id="goalPlus" aria-label="增加目标">+</button>
+          <span class="unit">次 / 月</span>
+        </div>
+      </div>
+    </div>
+    <div class="settings-foot">
+      <button type="button" id="cancelSettings">取消</button>
+      <button type="button" class="primary" id="saveSettings">保存</button>
+    </div>
+  </aside>
+</div>
+
 <div id="modalOverlay" class="overlay modal-overlay">
   <div class="modal">
     <div class="modal-head">
@@ -318,6 +370,8 @@ form input:focus{outline:3px solid rgba(159,196,255,.22);border-color:var(--sky)
 <script>
 (function(){
   const STORAGE_KEY = 'runningCalendar.records.v1';
+  const SETTINGS_KEY = 'runningCalendar.settings.v1';
+  const DEFAULT_GOAL = 20;
   const WEEKDAYS = ['周日','周一','周二','周三','周四','周五','周六'];
 
   const grid = document.getElementById('calendarGrid');
@@ -349,7 +403,13 @@ form input:focus{outline:3px solid rgba(159,196,255,.22);border-color:var(--sky)
 
   const importFile = document.getElementById('importFile');
 
+  const settingsOverlay = document.getElementById('settingsOverlay');
+  const goalInput = document.getElementById('goalInput');
+  const goalMinus = document.getElementById('goalMinus');
+  const goalPlus = document.getElementById('goalPlus');
+
   let records = loadRecords();
+  let settings = loadSettings();
   let editingId = null;
   let toastTimer = null;
   const now = new Date();
@@ -390,6 +450,24 @@ form input:focus{outline:3px solid rgba(159,196,255,.22);border-color:var(--sky)
     }catch(e){
       showToast('保存失败：浏览器可能不允许本地存储');
     }
+  }
+
+  function loadSettings(){
+    try{
+      const raw = localStorage.getItem(SETTINGS_KEY);
+      if(!raw) return { monthlyGoal: DEFAULT_GOAL };
+      const parsed = JSON.parse(raw);
+      const g = parseInt(parsed && parsed.monthlyGoal, 10);
+      return { monthlyGoal: (isFinite(g) && g >= 1 && g <= 99) ? g : DEFAULT_GOAL };
+    }catch(e){
+      return { monthlyGoal: DEFAULT_GOAL };
+    }
+  }
+
+  function saveSettings(){
+    try{
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+    }catch(e){}
   }
 
   function normalizeRecord(r){
@@ -479,9 +557,9 @@ form input:focus{outline:3px solid rgba(159,196,255,.22);border-color:var(--sky)
     const duration = monthRecords.reduce((s,r) => s + r.durationMin, 0);
     const pace = distance > 0 ? duration / distance : null;
 
-    monthCount.textContent = count;
+    monthCount.textContent = count + '/' + settings.monthlyGoal;
     if(waterFill){
-      waterFill.style.height = Math.min(100, (count / 20) * 100) + '%';
+      waterFill.style.height = Math.min(100, (count / settings.monthlyGoal) * 100) + '%';
     }
     monthDistance.textContent = formatKm(distance);
     monthDuration.textContent = formatDuration(duration);
@@ -712,6 +790,52 @@ form input:focus{outline:3px solid rgba(159,196,255,.22);border-color:var(--sky)
 
   panelOverlay.addEventListener('click', function(e){
     if(e.target === panelOverlay) closePanel();
+  });
+
+  function openSettings(){
+    goalInput.value = settings.monthlyGoal;
+    updateStepperState();
+    settingsOverlay.classList.add('open');
+  }
+  function closeSettingsDrawer(){
+    settingsOverlay.classList.remove('open');
+  }
+  function updateStepperState(){
+    const g = parseInt(goalInput.value, 10);
+    goalMinus.disabled = !(isFinite(g) && g > 1);
+    goalPlus.disabled = !(isFinite(g) && g < 99);
+  }
+  document.getElementById('settingsBtn').addEventListener('click', openSettings);
+  document.getElementById('closeSettings').addEventListener('click', closeSettingsDrawer);
+  document.getElementById('cancelSettings').addEventListener('click', closeSettingsDrawer);
+  settingsOverlay.addEventListener('click', function(e){
+    if(e.target === settingsOverlay) closeSettingsDrawer();
+  });
+  goalMinus.addEventListener('click', function(){
+    const g = parseInt(goalInput.value, 10);
+    goalInput.value = isFinite(g) ? Math.max(1, g - 1) : settings.monthlyGoal;
+    updateStepperState();
+  });
+  goalPlus.addEventListener('click', function(){
+    const g = parseInt(goalInput.value, 10);
+    goalInput.value = isFinite(g) ? Math.min(99, g + 1) : settings.monthlyGoal;
+    updateStepperState();
+  });
+  goalInput.addEventListener('input', updateStepperState);
+  document.getElementById('saveSettings').addEventListener('click', function(){
+    const parsed = parseInt(goalInput.value, 10);
+    if(!isFinite(parsed)){
+      showToast('请输入 1–99 之间的目标次数');
+      goalInput.value = settings.monthlyGoal;
+      updateStepperState();
+      return;
+    }
+    const g = Math.max(1, Math.min(99, parsed));
+    settings.monthlyGoal = g;
+    saveSettings();
+    renderCalendar();
+    closeSettingsDrawer();
+    showToast('月度目标已更新为 ' + g + ' 次');
   });
   modalOverlay.addEventListener('click', function(e){
     if(e.target === modalOverlay) closeModal();
