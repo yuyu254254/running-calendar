@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>跑步日历 · 晨跑柔彩预览</title>
+<title>运动日历</title>
 <style>
 :root{
   --bg:#f8f8fd;
@@ -167,6 +167,34 @@ button{font-family:inherit;color:inherit}
 .settings-foot button{border:0;background:#fff;padding:11px 20px;border-radius:999px;cursor:pointer;font-size:14px;box-shadow:0 6px 14px rgba(110,108,160,.1)}
 .settings-foot .primary{background:linear-gradient(135deg,var(--sky),var(--peach));color:#fff;font-weight:700}
 
+/* 多运动类型 */
+.type-picker{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.type-chip{flex:0 0 auto;display:flex;align-items:center;gap:5px;border:1px solid var(--border);background:#fff;border-radius:999px;padding:8px 13px;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;transition:.15s;line-height:1}
+.type-chip .tc-emoji{font-size:16px}
+.type-chip.active{background:linear-gradient(135deg,var(--sky-soft),var(--peach-soft));border-color:var(--sky);color:#4c4960;box-shadow:0 4px 12px rgba(159,196,255,.25)}
+.seg{display:flex;background:var(--sky-soft);border-radius:14px;padding:4px;gap:4px}
+.seg button{flex:1;border:0;background:transparent;padding:9px 0;border-radius:10px;cursor:pointer;font-size:14px;color:var(--muted);font-weight:700}
+.seg button.active{background:#fff;color:#5b8de0;box-shadow:0 4px 10px rgba(110,108,160,.12)}
+.type-list{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.type-row{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--border);border-radius:14px;background:#fff;font-size:14px}
+.type-row .t-emoji{font-size:18px;line-height:1}
+.type-row .t-name{flex:1;font-weight:700}
+.type-row .t-tag{color:var(--muted);font-size:12px}
+.type-row .t-del{border:0;background:none;color:#e08a8a;cursor:pointer;font-size:18px;line-height:1;padding:0 4px}
+.add-type-btn{width:100%;border:0;border-radius:14px;padding:11px;background:var(--sky-soft);color:#5b8de0;font-weight:700;font-size:14px;cursor:pointer}
+.add-type-form{margin-top:10px;border:1px dashed var(--border);border-radius:14px;padding:12px}
+.add-type-form input{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:12px;font-size:14px;background:#fff;margin:0}
+.add-type-form input:focus{outline:3px solid rgba(159,196,255,.22);border-color:var(--sky)}
+.emoji-grid{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+.emoji-grid button{width:38px;height:38px;border:1px solid var(--border);border-radius:12px;background:#fff;font-size:18px;cursor:pointer;line-height:1;padding:0}
+.emoji-grid button.active{border-color:var(--sky);background:var(--sky-soft);box-shadow:0 0 0 2px rgba(159,196,255,.25)}
+.add-type-ops{display:flex;justify-content:flex-end;gap:8px}
+.add-type-ops button{border:0;background:#fff;padding:8px 16px;border-radius:999px;cursor:pointer;font-size:13px;box-shadow:0 4px 10px rgba(110,108,160,.1)}
+.add-type-ops .primary{background:linear-gradient(135deg,var(--sky),var(--peach));color:#fff;font-weight:700}
+.rec-type{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:700}
+.rec-type .rt-emoji{font-size:17px}
+.day-summary .ds-types::after{content:" "}
+
 .modal-overlay{z-index:50;display:none;align-items:center;justify-content:center;padding:16px}
 .modal-overlay.open{display:flex}
 .modal{background:#fbfaff;border-radius:28px;width:min(440px,100%);max-height:92vh;overflow-y:auto;box-shadow:0 24px 60px rgba(110,108,160,.25)}
@@ -203,6 +231,8 @@ form input:focus{outline:3px solid rgba(159,196,255,.22);border-color:var(--sky)
   .calendar-day.has-record::after{left:auto;bottom:auto;top:6px;right:7px;width:7px;height:7px}
   .day-summary .ds-row{display:block}
   .day-summary .ds-count{display:none}
+  .day-summary .ds-types{display:inline}
+  .day-summary .ds-dist{display:inline}
   .day-summary .ds-dist::after{content:""}
   .day-summary .ds-unit::before{content:""}
   .hint .hint-desk{display:none}
@@ -231,10 +261,10 @@ form input:focus{outline:3px solid rgba(159,196,255,.22);border-color:var(--sky)
       <button id="settingsBtn" class="settings-btn" type="button" aria-label="设置">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
       </button>
-      <span class="logo">🏃</span>
+      <span class="logo">🏅</span>
       <div>
-        <h1>跑步日历</h1>
-        <p id="subtitle">记录每一次跑步</p>
+        <h1>运动日历</h1>
+        <p id="subtitle">记录每一次运动</p>
       </div>
     </div>
     <div class="actions">
@@ -257,8 +287,8 @@ form input:focus{outline:3px solid rgba(159,196,255,.22);border-color:var(--sky)
         <div class="ring-inner">
           <div>
             <div class="ring-value"><span id="monthDistance">0.0</span></div>
-            <div class="ring-unit">km</div>
-            <div class="ring-label">本月累计距离</div>
+            <div class="ring-unit" id="ringUnit">km</div>
+            <div class="ring-label" id="ringLabel">本月累计距离</div>
           </div>
         </div>
       </div>
@@ -280,7 +310,7 @@ form input:focus{outline:3px solid rgba(159,196,255,.22);border-color:var(--sky)
           <i class="ambient-bubble b7"></i>
         </div>
         </div>
-        <div class="stat-chip"><span>累计</span><strong><span id="totalCount">0</span> 次 · <span id="totalDistance">0.0</span> km</strong></div>
+        <div class="stat-chip"><span>累计</span><strong><span id="totalCount">0</span> 次 · <span id="totalValue">0.0</span> <span id="totalUnit">km</span></strong></div>
       </div>
     </div>
   </section>
@@ -290,7 +320,7 @@ form input:focus{outline:3px solid rgba(159,196,255,.22);border-color:var(--sky)
       <span>周一</span><span>周二</span><span>周三</span><span>周四</span><span>周五</span><span>周六</span><span>周日</span>
     </div>
     <div id="calendarGrid" class="calendar-grid"></div>
-    <p class="hint">点击日期查看或添加跑步记录 · <span class="hint-desk">左右方向键切换月份，T 回到今天</span><span class="hint-mob">用顶部箭头切换月份</span></p>
+    <p class="hint">点击日期查看或添加运动记录 · <span class="hint-desk">左右方向键切换月份，T 回到今天</span><span class="hint-mob">用顶部箭头切换月份</span></p>
   </section>
 </div>
 
@@ -304,7 +334,7 @@ form input:focus{outline:3px solid rgba(159,196,255,.22);border-color:var(--sky)
       <button class="close-btn" id="closePanel" type="button" aria-label="关闭">×</button>
     </div>
     <div id="recordList" class="record-list"></div>
-    <button id="addRecordBtn" class="add-btn" type="button">+ 新增跑步</button>
+    <button id="addRecordBtn" class="add-btn" type="button">+ 新增运动</button>
   </aside>
 </div>
 
@@ -313,19 +343,41 @@ form input:focus{outline:3px solid rgba(159,196,255,.22);border-color:var(--sky)
     <div class="panel-head">
       <div>
         <h3>设置</h3>
-        <p>个性化你的跑步日历</p>
+        <p>个性化你的运动日历</p>
       </div>
       <button class="close-btn" id="closeSettings" type="button" aria-label="关闭">×</button>
     </div>
     <div class="settings-body">
       <div class="setting-block">
         <h4>月度目标</h4>
-        <p>每月跑步达到目标次数时，本月次数水箱蓄满。</p>
+        <p>每月运动达到目标次数时，本月次数水箱蓄满。</p>
         <div class="stepper">
           <button type="button" id="goalMinus" aria-label="减少目标">−</button>
           <input type="number" id="goalInput" min="1" max="99" step="1" inputmode="numeric" aria-label="月度目标次数">
           <button type="button" id="goalPlus" aria-label="增加目标">+</button>
           <span class="unit">次 / 月</span>
+        </div>
+      </div>
+      <div class="setting-block">
+        <h4>圆环显示</h4>
+        <p>选择顶部圆环与累计卡片展示的指标，随时可切换。</p>
+        <div class="seg" id="ringMetricSeg">
+          <button type="button" data-metric="distance">距离（km）</button>
+          <button type="button" data-metric="duration">时长（小时）</button>
+        </div>
+      </div>
+      <div class="setting-block">
+        <h4>运动类型</h4>
+        <p>记录运动时可选的类型；自定义类型只记录时长。</p>
+        <div class="type-list" id="settingsTypeList"></div>
+        <button type="button" class="add-type-btn" id="addTypeBtn">＋ 添加运动类型</button>
+        <div class="add-type-form" id="addTypeForm" hidden>
+          <input type="text" id="newTypeName" maxlength="6" placeholder="类型名称，如 羽毛球">
+          <div class="emoji-grid" id="emojiGrid"></div>
+          <div class="add-type-ops">
+            <button type="button" id="cancelAddType">取消</button>
+            <button type="button" class="primary" id="confirmAddType">添加</button>
+          </div>
         </div>
       </div>
     </div>
@@ -339,14 +391,18 @@ form input:focus{outline:3px solid rgba(159,196,255,.22);border-color:var(--sky)
 <div id="modalOverlay" class="overlay modal-overlay">
   <div class="modal">
     <div class="modal-head">
-      <h3 id="modalTitle">新增跑步</h3>
+      <h3 id="modalTitle">新增运动</h3>
       <button class="close-btn" id="closeModal" type="button" aria-label="关闭">×</button>
     </div>
     <form id="recordForm">
       <input type="hidden" id="recordId">
+      <label>运动类型
+        <div class="type-picker" id="typePicker"></div>
+      </label>
       <label>日期
         <input type="date" id="fieldDate" required>
       </label>
+      <div id="distanceFields">
       <label>距离（公里）
         <input type="number" id="fieldDistance" step="0.01" min="0.01" placeholder="例如 5" required>
       </label>
@@ -354,9 +410,10 @@ form input:focus{outline:3px solid rgba(159,196,255,.22);border-color:var(--sky)
         <input type="number" id="fieldDuration" step="1" min="1" placeholder="例如 30" required>
       </label>
       <label>备注（可选）
-        <input type="text" id="fieldNote" maxlength="200" placeholder="例如 轻松跑、夜跑">
+        <input type="text" id="fieldNote" maxlength="200" placeholder="例如 轻松跑、腿推拉、半场球">
       </label>
       <div class="pace-preview" id="pacePreview">输入距离和时长后显示配速</div>
+      </div>
       <div class="form-actions">
         <button type="button" id="cancelSave">取消</button>
         <button type="submit" class="primary">保存</button>
@@ -372,6 +429,15 @@ form input:focus{outline:3px solid rgba(159,196,255,.22);border-color:var(--sky)
   const STORAGE_KEY = 'runningCalendar.records.v1';
   const SETTINGS_KEY = 'runningCalendar.settings.v1';
   const DEFAULT_GOAL = 20;
+  const BUILTIN_TYPES = [
+    {id:'run',name:'跑步',emoji:'🏃',hasDistance:true},
+    {id:'strength',name:'撸铁',emoji:'🏋️',hasDistance:false},
+    {id:'basketball',name:'篮球',emoji:'🏀',hasDistance:false},
+    {id:'ride',name:'骑行',emoji:'🚴',hasDistance:true},
+    {id:'swim',name:'游泳',emoji:'🏊',hasDistance:true},
+    {id:'other',name:'其他',emoji:'⚡',hasDistance:false}
+  ];
+  const EMOJI_CHOICES = ['🏸','⚽','🏓','🧘','🚶','🥾','🧗','🤸','⛹️','🤾','🏐','🎾'];
   const WEEKDAYS = ['周日','周一','周二','周三','周四','周五','周六'];
 
   const grid = document.getElementById('calendarGrid');
@@ -397,7 +463,10 @@ form input:focus{outline:3px solid rgba(159,196,255,.22);border-color:var(--sky)
   const monthDuration = document.getElementById('monthDuration');
   const monthPace = document.getElementById('monthPace');
   const totalCount = document.getElementById('totalCount');
-  const totalDistance = document.getElementById('totalDistance');
+  const totalValue = document.getElementById('totalValue');
+  const totalUnit = document.getElementById('totalUnit');
+  const ringUnit = document.getElementById('ringUnit');
+  const ringLabel = document.getElementById('ringLabel');
   const waterTank = document.getElementById('waterTank');
   const waterFill = document.getElementById('waterFill');
 
@@ -408,8 +477,8 @@ form input:focus{outline:3px solid rgba(159,196,255,.22);border-color:var(--sky)
   const goalMinus = document.getElementById('goalMinus');
   const goalPlus = document.getElementById('goalPlus');
 
-  let records = loadRecords();
   let settings = loadSettings();
+  let records = loadRecords();
   let editingId = null;
   let toastTimer = null;
   const now = new Date();
@@ -453,15 +522,22 @@ form input:focus{outline:3px solid rgba(159,196,255,.22);border-color:var(--sky)
   }
 
   function loadSettings(){
+    const s = { monthlyGoal: DEFAULT_GOAL, ringMetric: 'distance', customTypes: [] };
     try{
       const raw = localStorage.getItem(SETTINGS_KEY);
-      if(!raw) return { monthlyGoal: DEFAULT_GOAL };
-      const parsed = JSON.parse(raw);
-      const g = parseInt(parsed && parsed.monthlyGoal, 10);
-      return { monthlyGoal: (isFinite(g) && g >= 1 && g <= 99) ? g : DEFAULT_GOAL };
-    }catch(e){
-      return { monthlyGoal: DEFAULT_GOAL };
-    }
+      if(raw){
+        const p = JSON.parse(raw);
+        const g = parseInt(p && p.monthlyGoal, 10);
+        if(isFinite(g) && g >= 1 && g <= 99) s.monthlyGoal = g;
+        if(p && (p.ringMetric === 'distance' || p.ringMetric === 'duration')) s.ringMetric = p.ringMetric;
+        if(p && Array.isArray(p.customTypes)){
+          s.customTypes = p.customTypes
+            .filter(t => t && typeof t.id === 'string' && typeof t.name === 'string' && t.name)
+            .map(t => ({ id: t.id, name: String(t.name).slice(0,6), emoji: typeof t.emoji === 'string' && t.emoji ? t.emoji : '⚡', hasDistance: false }));
+        }
+      }
+    }catch(e){}
+    return s;
   }
 
   function saveSettings(){
@@ -470,19 +546,35 @@ form input:focus{outline:3px solid rgba(159,196,255,.22);border-color:var(--sky)
     }catch(e){}
   }
 
+  function allTypes(){
+    return BUILTIN_TYPES.concat(Array.isArray(settings.customTypes) ? settings.customTypes : []);
+  }
+  function typeMeta(id){
+    return allTypes().find(t => t.id === id) || BUILTIN_TYPES.find(t => t.id === 'other');
+  }
+
   function normalizeRecord(r){
     const obj = r || {};
+    const hasTypeField = Object.prototype.hasOwnProperty.call(obj, 'type');
+    let type = (typeof obj.type === 'string' && obj.type) ? obj.type : (hasTypeField ? 'other' : 'run');
+    if(!allTypes().some(t => t.id === type)) type = hasTypeField ? 'other' : 'run';
+    const meta = typeMeta(type);
+    const dist = Number(obj.distanceKm);
     return {
       id: typeof obj.id === 'string' && obj.id ? obj.id : makeId(),
       date: typeof obj.date === 'string' ? obj.date : '',
-      distanceKm: Number(obj.distanceKm),
+      type: type,
+      distanceKm: (meta.hasDistance && isFinite(dist) && dist > 0) ? dist : null,
       durationMin: Number(obj.durationMin),
       note: typeof obj.note === 'string' ? obj.note : ''
     };
   }
 
   function isValidRecord(r){
-    return /^\d{4}-\d{2}-\d{2}$/.test(r.date) && isFinite(r.distanceKm) && r.distanceKm > 0 && isFinite(r.durationMin) && r.durationMin > 0;
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(r.date)) return false;
+    if(!isFinite(r.durationMin) || r.durationMin <= 0) return false;
+    if(typeMeta(r.type).hasDistance && (!isFinite(r.distanceKm) || r.distanceKm <= 0)) return false;
+    return true;
   }
 
   function formatKm(value){
@@ -553,25 +645,41 @@ form input:focus{outline:3px solid rgba(159,196,255,.22);border-color:var(--sky)
   function renderStats(){
     const monthRecords = recordsForMonth();
     const count = monthRecords.length;
-    const distance = monthRecords.reduce((s,r) => s + r.distanceKm, 0);
-    const duration = monthRecords.reduce((s,r) => s + r.durationMin, 0);
-    const pace = distance > 0 ? duration / distance : null;
+    const distance = monthRecords.reduce((sum,r) => sum + (r.distanceKm || 0), 0);
+    const duration = monthRecords.reduce((sum,r) => sum + r.durationMin, 0);
+    const dRecs = monthRecords.filter(r => typeMeta(r.type).hasDistance);
+    const dDist = dRecs.reduce((sum,r) => sum + (r.distanceKm || 0), 0);
+    const dDur = dRecs.reduce((sum,r) => sum + r.durationMin, 0);
+    const pace = dDist > 0 ? dDur / dDist : null;
 
     monthCount.textContent = count + '/' + settings.monthlyGoal;
     if(waterFill){
       waterFill.style.height = Math.min(100, (count / settings.monthlyGoal) * 100) + '%';
     }
-    monthDistance.textContent = formatKm(distance);
     monthDuration.textContent = formatDuration(duration);
     monthPace.textContent = pace === null ? '—' : formatPace(pace);
 
     totalCount.textContent = records.length;
-    totalDistance.textContent = formatKm(records.reduce((s,r) => s + r.distanceKm, 0));
+    const allDistance = records.reduce((sum,r) => sum + (r.distanceKm || 0), 0);
+    const allDuration = records.reduce((sum,r) => sum + r.durationMin, 0);
+    if(settings.ringMetric === 'duration'){
+      monthDistance.textContent = (Math.round(duration / 60 * 10) / 10).toFixed(1);
+      ringUnit.textContent = '小时';
+      ringLabel.textContent = '本月运动时长';
+      totalValue.textContent = (Math.round(allDuration / 60 * 10) / 10).toFixed(1);
+      totalUnit.textContent = '小时';
+    }else{
+      monthDistance.textContent = formatKm(distance);
+      ringUnit.textContent = 'km';
+      ringLabel.textContent = '本月累计距离';
+      totalValue.textContent = formatKm(allDistance);
+      totalUnit.textContent = 'km';
+    }
   }
 
   function renderCalendar(){
     monthLabel.textContent = view.year + '年' + (view.month + 1) + '月';
-    subtitle.textContent = '记录每一次跑步 · 本月 ' + recordsForMonth().length + ' 次';
+    subtitle.textContent = '记录每一次运动 · 本月 ' + recordsForMonth().length + ' 次';
 
     const first = new Date(view.year, view.month, 1);
     const offset = (first.getDay() + 6) % 7;
@@ -593,10 +701,16 @@ form input:focus{outline:3px solid rgba(159,196,255,.22);border-color:var(--sky)
 
       let summary = '';
       if(dayRecords.length > 0){
-        const dist = dayRecords.reduce((s,r) => s + r.distanceKm, 0);
-        const dur = dayRecords.reduce((s,r) => s + r.durationMin, 0);
-        summary = '<span class="ds-row ds-count">' + dayRecords.length + '次</span>'
-          + '<span class="ds-row ds-dist"><span class="ds-num">' + formatKm(dist) + '</span><span class="ds-unit">km</span></span>'
+        const dist = dayRecords.reduce((sum,r) => sum + (r.distanceKm || 0), 0);
+        const dur = dayRecords.reduce((sum,r) => sum + r.durationMin, 0);
+        const emojis = [];
+        dayRecords.forEach(r => {
+          const em = typeMeta(r.type).emoji;
+          if(emojis.indexOf(em) === -1) emojis.push(em);
+        });
+        summary = '<span class="ds-row ds-types">' + emojis.slice(0,3).join('') + '</span>'
+          + '<span class="ds-row ds-count">' + dayRecords.length + '次</span>'
+          + (dist > 0 ? '<span class="ds-row ds-dist"><span class="ds-num">' + formatKm(dist) + '</span><span class="ds-unit">km</span></span>' : '')
           + '<span class="ds-row ds-dur">' + formatDuration(dur) + '</span>';
       }
 
@@ -612,24 +726,28 @@ form input:focus{outline:3px solid rgba(159,196,255,.22);border-color:var(--sky)
   function renderPanel(){
     const date = dateFromKey(selectedDate);
     const dayRecords = recordsForDate(selectedDate);
-    const dist = dayRecords.reduce((s,r) => s + r.distanceKm, 0);
-    const dur = dayRecords.reduce((s,r) => s + r.durationMin, 0);
+    const dist = dayRecords.reduce((sum,r) => sum + (r.distanceKm || 0), 0);
+    const dur = dayRecords.reduce((sum,r) => sum + r.durationMin, 0);
     panelDate.textContent = date.getFullYear() + '年' + (date.getMonth() + 1) + '月' + date.getDate() + '日 ' + WEEKDAYS[date.getDay()];
     panelSummary.textContent = dayRecords.length
-      ? '当天合计 ' + dayRecords.length + ' 次 · ' + formatKm(dist) + ' km · ' + formatDuration(dur)
-      : '这一天还没有跑步记录';
+      ? '当天合计 ' + dayRecords.length + ' 次 · ' + (dist > 0 ? formatKm(dist) + ' km · ' : '') + formatDuration(dur)
+      : '这一天还没有运动记录';
 
     if(dayRecords.length === 0){
-      recordList.innerHTML = '<div class="empty">点击下方按钮，记录今天的第一次跑步 💪</div>';
+      recordList.innerHTML = '<div class="empty">点击下方按钮，记录今天的第一次运动 💪</div>';
       return;
     }
 
     let html = '';
     dayRecords.forEach(r => {
-      const pace = formatPace(r.durationMin / r.distanceKm);
+      const meta = typeMeta(r.type);
+      const nums = meta.hasDistance
+        ? formatKm(r.distanceKm) + ' km · ' + formatDuration(r.durationMin)
+        : formatDuration(r.durationMin);
       html += '<div class="record-item" data-id="' + escapeHtml(r.id) + '">'
-        + '<div class="main"><div class="nums">' + formatKm(r.distanceKm) + ' km · ' + formatDuration(r.durationMin) + '</div></div>'
-        + '<div class="meta">配速 ' + pace + ' / 公里</div>'
+        + '<div class="main"><div class="rec-type"><span class="rt-emoji">' + meta.emoji + '</span>' + escapeHtml(meta.name) + '</div>'
+        + '<div class="nums">' + nums + '</div></div>'
+        + (meta.hasDistance ? '<div class="meta">配速 ' + formatPace(r.durationMin / r.distanceKm) + ' / 公里</div>' : '')
         + (r.note ? '<div class="note">' + escapeHtml(r.note) + '</div>' : '')
         + '<div class="ops">'
         + '<button type="button" data-action="edit" data-id="' + escapeHtml(r.id) + '">编辑</button>'
@@ -650,28 +768,44 @@ form input:focus{outline:3px solid rgba(159,196,255,.22);border-color:var(--sky)
     panelOverlay.classList.remove('open');
   }
 
+  let formType = 'run';
+  function renderTypePicker(){
+    const picker = document.getElementById('typePicker');
+    picker.innerHTML = allTypes().map(t =>
+      '<button type="button" class="type-chip' + (t.id === formType ? ' active' : '') + '" data-type="' + escapeHtml(t.id) + '"><span class="tc-emoji">' + t.emoji + '</span>' + escapeHtml(t.name) + '</button>'
+    ).join('');
+  }
+  function updateDistanceVisibility(){
+    const has = typeMeta(formType).hasDistance;
+    document.getElementById('distanceFields').hidden = !has;
+    fieldDistance.required = has;
+  }
   function openModal(id){
     editingId = id || null;
     if(id){
       const r = records.find(x => x.id === id);
       if(!r) return;
       recordIdInput.value = r.id;
+      formType = r.type;
       fieldDate.value = r.date;
-      fieldDistance.value = r.distanceKm;
+      fieldDistance.value = typeMeta(r.type).hasDistance ? (r.distanceKm || '') : '';
       fieldDuration.value = r.durationMin;
       fieldNote.value = r.note;
-      modalTitle.textContent = '编辑跑步';
+      modalTitle.textContent = '编辑记录';
     }else{
       recordIdInput.value = '';
+      formType = 'run';
       fieldDate.value = selectedDate;
       fieldDistance.value = '';
       fieldDuration.value = '';
       fieldNote.value = '';
-      modalTitle.textContent = '新增跑步';
+      modalTitle.textContent = '新增运动';
     }
+    renderTypePicker();
+    updateDistanceVisibility();
     updatePacePreview();
     modalOverlay.classList.add('open');
-    setTimeout(() => fieldDistance.focus(), 50);
+    setTimeout(() => (typeMeta(formType).hasDistance ? fieldDistance : fieldDuration).focus(), 50);
   }
 
   function closeModal(){
@@ -680,6 +814,10 @@ form input:focus{outline:3px solid rgba(159,196,255,.22);border-color:var(--sky)
   }
 
   function updatePacePreview(){
+    if(!typeMeta(formType).hasDistance){
+      pacePreview.textContent = '该类型只记录时长，无需填写距离';
+      return;
+    }
     const d = parseFloat(fieldDistance.value);
     const m = parseFloat(fieldDuration.value);
     if(isFinite(d) && d > 0 && isFinite(m) && m > 0){
@@ -710,7 +848,7 @@ form input:focus{outline:3px solid rgba(159,196,255,.22);border-color:var(--sky)
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = '跑步日历-' + toKey(new Date()) + '.json';
+    a.download = '运动日历-' + toKey(new Date()) + '.json';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -763,7 +901,7 @@ form input:focus{outline:3px solid rgba(159,196,255,.22);border-color:var(--sky)
     }else if(btn.dataset.action === 'delete'){
       const r = records.find(x => x.id === id);
       if(!r) return;
-      if(!confirm('确定删除这条跑步记录吗？')) return;
+      if(!confirm('确定删除这条运动记录吗？')) return;
       records = records.filter(x => x.id !== id);
       saveRecords();
       renderCalendar();
@@ -792,10 +930,48 @@ form input:focus{outline:3px solid rgba(159,196,255,.22);border-color:var(--sky)
     if(e.target === panelOverlay) closePanel();
   });
 
+  let settingsDraft = null;
+  let newTypeEmoji = EMOJI_CHOICES[0];
+  function draftTypes(){
+    return BUILTIN_TYPES.concat(settingsDraft.customTypes);
+  }
   function openSettings(){
-    goalInput.value = settings.monthlyGoal;
+    settingsDraft = {
+      monthlyGoal: settings.monthlyGoal,
+      ringMetric: settings.ringMetric,
+      customTypes: JSON.parse(JSON.stringify(settings.customTypes || []))
+    };
+    newTypeEmoji = EMOJI_CHOICES[0];
+    goalInput.value = settingsDraft.monthlyGoal;
     updateStepperState();
+    document.getElementById('addTypeForm').hidden = true;
+    document.getElementById('newTypeName').value = '';
+    renderRingSeg();
+    renderSettingsTypeList();
+    renderEmojiGrid();
     settingsOverlay.classList.add('open');
+  }
+  function renderRingSeg(){
+    document.querySelectorAll('#ringMetricSeg button').forEach(function(b){
+      b.classList.toggle('active', b.dataset.metric === settingsDraft.ringMetric);
+    });
+  }
+  function renderSettingsTypeList(){
+    const list = document.getElementById('settingsTypeList');
+    list.innerHTML = draftTypes().map(function(t){
+      const custom = !BUILTIN_TYPES.some(function(b){ return b.id === t.id; });
+      return '<div class="type-row"><span class="t-emoji">' + t.emoji + '</span>'
+        + '<span class="t-name">' + escapeHtml(t.name) + '</span>'
+        + '<span class="t-tag">' + (t.hasDistance ? '计距离' : '仅时长') + '</span>'
+        + (custom ? '<button type="button" class="t-del" data-del="' + escapeHtml(t.id) + '" aria-label="删除类型">×</button>' : '')
+        + '</div>';
+    }).join('');
+  }
+  function renderEmojiGrid(){
+    const grid = document.getElementById('emojiGrid');
+    grid.innerHTML = EMOJI_CHOICES.map(function(em){
+      return '<button type="button" data-emoji="' + em + '"' + (em === newTypeEmoji ? ' class="active"' : '') + '>' + em + '</button>';
+    }).join('');
   }
   function closeSettingsDrawer(){
     settingsOverlay.classList.remove('open');
@@ -826,16 +1002,71 @@ form input:focus{outline:3px solid rgba(159,196,255,.22);border-color:var(--sky)
     const parsed = parseInt(goalInput.value, 10);
     if(!isFinite(parsed)){
       showToast('请输入 1–99 之间的目标次数');
-      goalInput.value = settings.monthlyGoal;
+      goalInput.value = settingsDraft.monthlyGoal;
       updateStepperState();
       return;
     }
     const g = Math.max(1, Math.min(99, parsed));
-    settings.monthlyGoal = g;
+    settings = {
+      monthlyGoal: g,
+      ringMetric: settingsDraft.ringMetric === 'duration' ? 'duration' : 'distance',
+      customTypes: settingsDraft.customTypes
+    };
     saveSettings();
     renderCalendar();
     closeSettingsDrawer();
-    showToast('月度目标已更新为 ' + g + ' 次');
+    showToast('设置已保存');
+  });
+  document.getElementById('ringMetricSeg').addEventListener('click', function(e){
+    const b = e.target.closest('button[data-metric]');
+    if(!b) return;
+    settingsDraft.ringMetric = b.dataset.metric;
+    renderRingSeg();
+  });
+  document.getElementById('settingsTypeList').addEventListener('click', function(e){
+    const b = e.target.closest('[data-del]');
+    if(!b) return;
+    const id = b.dataset.del;
+    if(records.some(function(r){ return r.type === id; })){
+      showToast('该类型已有运动记录，无法删除');
+      return;
+    }
+    settingsDraft.customTypes = settingsDraft.customTypes.filter(function(t){ return t.id !== id; });
+    renderSettingsTypeList();
+  });
+  document.getElementById('addTypeBtn').addEventListener('click', function(){
+    document.getElementById('addTypeForm').hidden = false;
+    setTimeout(function(){ document.getElementById('newTypeName').focus(); }, 30);
+  });
+  document.getElementById('cancelAddType').addEventListener('click', function(){
+    document.getElementById('addTypeForm').hidden = true;
+  });
+  document.getElementById('emojiGrid').addEventListener('click', function(e){
+    const b = e.target.closest('button[data-emoji]');
+    if(!b) return;
+    newTypeEmoji = b.dataset.emoji;
+    renderEmojiGrid();
+  });
+  document.getElementById('confirmAddType').addEventListener('click', function(){
+    const input = document.getElementById('newTypeName');
+    const name = input.value.trim();
+    if(!name){ showToast('请输入类型名称'); return; }
+    if(name.length > 6){ showToast('类型名称最多 6 个字'); return; }
+    if(draftTypes().some(function(t){ return t.name === name; })){
+      showToast('已存在同名类型');
+      return;
+    }
+    settingsDraft.customTypes.push({
+      id: 'c_' + Date.now().toString(36) + Math.random().toString(36).slice(2,6),
+      name: name,
+      emoji: newTypeEmoji,
+      hasDistance: false
+    });
+    input.value = '';
+    newTypeEmoji = EMOJI_CHOICES[0];
+    renderEmojiGrid();
+    renderSettingsTypeList();
+    showToast('已添加「' + name + '」，点击保存后生效');
   });
   modalOverlay.addEventListener('click', function(e){
     if(e.target === modalOverlay) closeModal();
@@ -843,33 +1074,49 @@ form input:focus{outline:3px solid rgba(159,196,255,.22);border-color:var(--sky)
 
   fieldDistance.addEventListener('input', updatePacePreview);
   fieldDuration.addEventListener('input', updatePacePreview);
+  document.getElementById('typePicker').addEventListener('click', function(e){
+    const b = e.target.closest('.type-chip');
+    if(!b) return;
+    formType = b.dataset.type;
+    renderTypePicker();
+    updateDistanceVisibility();
+    updatePacePreview();
+  });
 
   recordForm.addEventListener('submit', function(e){
     e.preventDefault();
     const date = fieldDate.value;
-    const distance = parseFloat(fieldDistance.value);
     const duration = parseFloat(fieldDuration.value);
     const note = fieldNote.value.trim();
+    const meta = typeMeta(formType);
 
     if(!/^\d{4}-\d{2}-\d{2}$/.test(date)){
       showToast('请选择有效日期');
-      return;
-    }
-    if(!isFinite(distance) || distance <= 0){
-      showToast('距离必须大于 0');
       return;
     }
     if(!isFinite(duration) || duration <= 0){
       showToast('时长必须大于 0');
       return;
     }
+    let distance = null;
+    if(meta.hasDistance){
+      distance = parseFloat(fieldDistance.value);
+      if(!isFinite(distance) || distance <= 0){
+        showToast('距离必须大于 0');
+        return;
+      }
+    }
+
+    const build = function(id){
+      const rec = { id: id, date: date, type: formType, durationMin: duration, note: note };
+      if(meta.hasDistance) rec.distanceKm = distance;
+      return rec;
+    };
 
     if(editingId){
-      records = records.map(r => r.id === editingId
-        ? { id: editingId, date, distanceKm: distance, durationMin: duration, note }
-        : r);
+      records = records.map(r => r.id === editingId ? build(editingId) : r);
     }else{
-      records.push({ id: makeId(), date, distanceKm: distance, durationMin: duration, note });
+      records.push(build(makeId()));
     }
 
     saveRecords();
